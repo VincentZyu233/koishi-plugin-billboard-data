@@ -30,6 +30,14 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
         }
       }
 
+      let waitingHintMsgId: string | undefined
+      if (config.enableWaitingHint && session) {
+        try {
+          const sent = await sendReply(session, config, '🎨 正在获取并渲染周榜数据，请稍候... ⏳')
+          waitingHintMsgId = Array.isArray(sent) ? sent[0] : (typeof sent === 'string' ? sent : undefined)
+        } catch {}
+      }
+
       try {
         let detail
         if (targetIssue) {
@@ -43,6 +51,12 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
       } catch (err: any) {
         logger.error(err)
         await sendReply(session, config, `❌ 获取周榜数据失败: ${err.message || err}`)
+      } finally {
+        if (waitingHintMsgId && session?.bot?.deleteMessage && session?.channelId) {
+          try {
+            await session.bot.deleteMessage(session.channelId, waitingHintMsgId)
+          } catch {}
+        }
       }
     })
 }

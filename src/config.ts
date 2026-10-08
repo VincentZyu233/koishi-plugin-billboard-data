@@ -13,6 +13,9 @@ export type TakumiFontMode = 'release' | 'custom' | 'none'
 export type PuppeteerFontMode = 'npm' | 'release' | 'custom' | 'none'
 
 export interface Config {
+  // 消息交互设置
+  enableQuote: boolean
+  enableWaitingHint: boolean
   dataSources: string[]
   autoPurgeJsdelivr: boolean
   ghProxyPrefix: string
@@ -33,7 +36,6 @@ export interface Config {
   // QQ 原生 Markdown 设置
   qqMarkdownShowDetailedInfo: boolean
   // 常规偏好与广播
-  enableQuote: boolean
   defaultTop: number
   showCover: boolean
   enableBroadcast: boolean
@@ -42,6 +44,15 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.intersect([
+  Schema.object({
+    enableQuote: Schema.boolean()
+      .default(true)
+      .description('💬 是否引用触发指令的消息'),
+    enableWaitingHint: Schema.boolean()
+      .default(true)
+      .description('⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后将自动撤回）'),
+  }).description('💬 消息交互设置'),
+
   Schema.object({
     dataSources: Schema.array(Schema.string())
       .role('table')
@@ -135,9 +146,6 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('📊 QQ 原生 Markdown 设置'),
 
   Schema.object({
-    enableQuote: Schema.boolean()
-      .default(true)
-      .description('💬 是否启用引用回复'),
     defaultTop: Schema.number()
       .default(10)
       .min(1)

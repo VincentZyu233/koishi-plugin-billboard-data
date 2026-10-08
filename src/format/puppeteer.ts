@@ -239,6 +239,16 @@ export async function renderWeeklyPuppeteer(
       line-height: 1.3;
     }
 
+    .top1-orig-title {
+      font-size: 13px;
+      color: #61666D;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+      margin-top: -3px;
+    }
+
     .top1-cover-box {
       width: 100%;
       height: 350px;
@@ -347,8 +357,8 @@ export async function renderWeeklyPuppeteer(
     }
 
     .card-thumb {
-      width: 104px;
-      height: 65px;
+      width: 128px;
+      height: 80px;
       border-radius: 6px;
       overflow: hidden;
       flex-shrink: 0;
@@ -416,6 +426,15 @@ export async function renderWeeklyPuppeteer(
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .card-orig-title {
+      font-size: 12.5px;
+      color: #61666D;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
     }
 
     .bvid-tag {
@@ -546,6 +565,7 @@ export async function renderWeeklyPuppeteer(
     </div>
     <div class="top1-content">
       <div class="top1-title">${top1.title}</div>
+      ${showDetailed && top1.video_meta?.title ? `<div class="top1-orig-title">原视频: ${top1.video_meta.title}</div>` : ''}
       ${showCover && top1.pic_url ? `
       <div class="top1-cover-box">
         <img src="${top1.pic_url}" alt="Cover" />
@@ -609,6 +629,7 @@ export async function renderWeeklyPuppeteer(
               </div>
               ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
             </div>
+            ${meta.title ? `<div class="card-orig-title">原视频: ${meta.title}</div>` : ''}
             <div class="card-row-2">
               ${renderUploaderAvatarHtml(meta.uploader?.face, uploaderName, 22)}
               <span class="uploader-text">视频上传者: ${uploaderName}</span>

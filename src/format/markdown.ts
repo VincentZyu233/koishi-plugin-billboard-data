@@ -30,6 +30,9 @@ export function buildWeeklyQQMarkdown(
         const uploaderName = meta.uploader?.name || '未知'
         const dur = formatDuration(meta.duration)
         const s = meta.stat || ({} as any)
+        if (meta.title) {
+          md += `> 🎬 原视频: ${meta.title}\n`
+        }
         md += `> 👤 视频上传者: **${uploaderName}** ｜ ⏱️ 时长: ${dur}\n`
         md += `> 📊 播放: ${formatCount(s.view)} · 弹幕: ${formatCount(s.danmaku)} · 点赞: ${formatCount(s.like)} · 投币: ${formatCount(s.coin)} · 收藏: ${formatCount(s.favorite)}\n\n`
       } else {

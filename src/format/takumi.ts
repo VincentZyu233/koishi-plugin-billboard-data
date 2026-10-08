@@ -87,6 +87,12 @@ async function fetchImageBuffer(ctx: Context, url?: string): Promise<Uint8Array 
   }
 }
 
+function truncateText(str: string, maxLength: number = 42): string {
+  if (!str) return ''
+  if (str.length <= maxLength) return str
+  return str.slice(0, maxLength - 1) + '…'
+}
+
 function calculateCoverHeight(buffer: Uint8Array): number {
   try {
     const imageSize = nodeRequire('image-size')
@@ -286,9 +292,21 @@ export async function renderWeeklyTakumi(
         fontSize: 22,
         fontWeight: 600,
         color: palette.textMain,
-        marginBottom: top1CoverBuffer ? 8 : 4,
+        marginBottom: showDetailed && top1.video_meta?.title ? 2 : (top1CoverBuffer ? 8 : 4),
       })
     )
+
+    // TOP 1 原视频标题
+    if (showDetailed && top1.video_meta?.title) {
+      top1Inner.push(
+        text(`原视频: ${truncateText(top1.video_meta.title, 52)}`, {
+          fontSize: 13,
+          fontWeight: 400,
+          color: palette.textSub,
+          marginBottom: top1CoverBuffer ? 8 : 4,
+        })
+      )
+    }
 
     // 海报封面
     if (top1CoverBuffer) {
@@ -482,8 +500,29 @@ export async function renderWeeklyTakumi(
         })
       )
 
-      // 行 2: 视频上传者 + 头像 + 时长
-      const line2Children: Node[] = [
+      // 行 2: 原视频标题
+      if (meta.title) {
+        cardInner.push(
+          container({
+            style: {
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 2,
+            },
+            children: [
+              text(`原视频: ${truncateText(meta.title, 42)}`, {
+                fontSize: 12.5,
+                fontWeight: 400,
+                color: palette.textSub,
+              }),
+            ],
+          })
+        )
+      }
+
+      // 行 3: 视频上传者 + 头像 + 时长
+      const line3Children: Node[] = [
         renderAvatar(avatarBuf, initial, 22),
         text(`视频上传者: ${uploaderName}`, {
           fontSize: 13,
@@ -506,11 +545,11 @@ export async function renderWeeklyTakumi(
             alignItems: 'center',
             marginBottom: 2,
           },
-          children: line2Children,
+          children: line3Children,
         })
       )
 
-      // 行 3: 播放/弹幕/点赞/投币/收藏/分享 6项指标
+      // 行 4: 播放/弹幕/点赞/投币/收藏/分享 6项指标
       cardInner.push(
         container({
           style: {
@@ -549,8 +588,8 @@ export async function renderWeeklyTakumi(
             children: [
               container({
                 style: {
-                  width: 104,
-                  height: 65,
+                  width: 128,
+                  height: 80,
                   borderRadius: 6,
                   overflow: 'hidden',
                   marginRight: 10,
@@ -559,11 +598,11 @@ export async function renderWeeklyTakumi(
                 children: [
                   image({
                     src: coverBuf,
-                    width: 104,
-                    height: 65,
+                    width: 128,
+                    height: 80,
                     style: {
-                      width: 104,
-                      height: 65,
+                      width: 128,
+                      height: 80,
                       borderRadius: 6,
                       objectFit: 'cover',
                     },
