@@ -52,6 +52,16 @@
 | `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀（留空表示不使用；若填写且为 GitHub 域名，优先加速访问） |
 | `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用） |
 
+### 🖼️ 渲染与输出格式
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `outputFormats` | `string[]` | 全部勾选 | 📤 周榜返回格式（可多选：`text` 纯文本 / `takumi` WASM 出图 / `puppeteer` 网页海报 / `qq_markdown` QQ 表格，后者仅 qq 平台） |
+| `takumiFontMode` | `"release" \| "custom" \| "none"` | `"release"` | 🔤 Takumi WASM 出图字体模式（支持 Release 下载校验、本地路径或系统内置） |
+| `takumiCustomFontPath` | `string` | `""` | 📁 Takumi 本地自定义字体路径 |
+| `puppeteerFontMode` | `"npm" \| "release" \| "custom" \| "none"` | `"npm"` | 🔤 Puppeteer 网页出图字体模式（支持 npm 字体包、Release 字体、本地路径或默认字体） |
+| `puppeteerCustomFontPath` | `string` | `""` | 📁 Puppeteer 本地自定义字体路径 |
+
 ### 🎨 显示偏好
 
 | 配置项 | 类型 | 默认值 | 说明 |

@@ -8,10 +8,19 @@ export interface BroadcastTarget {
   enabled: boolean
 }
 
+export type OutputFormat = 'text' | 'takumi' | 'puppeteer' | 'qq_markdown'
+export type TakumiFontMode = 'release' | 'custom' | 'none'
+export type PuppeteerFontMode = 'npm' | 'release' | 'custom' | 'none'
+
 export interface Config {
   dataSources: string[]
   ghProxyPrefix: string
   customProxyUrl: string
+  outputFormats: OutputFormat[]
+  takumiFontMode: TakumiFontMode
+  takumiCustomFontPath: string
+  puppeteerFontMode: PuppeteerFontMode
+  puppeteerCustomFontPath: string
   enableQuote: boolean
   defaultTop: number
   showCover: boolean
@@ -39,6 +48,43 @@ export const Config: Schema<Config> = Schema.intersect([
       .default('http://127.0.0.1:7890')
       .description('🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用；将在公网代理失败或非 GitHub 地址时尝试通过该代理访问）'),
   }).description('🛡️ 网络代理配置（请求时将依次自动尝试：gh-proxy 镜像加速 -> 自定义本地代理 -> 直连）'),
+
+  Schema.object({
+    outputFormats: Schema.array(
+      Schema.union([
+        Schema.const('text' as OutputFormat).description('📝 纯文本消息'),
+        Schema.const('takumi' as OutputFormat).description('⚡ Takumi WASM 渲染出图（B站粉蓝极速轻量看板）'),
+        Schema.const('puppeteer' as OutputFormat).description('🎨 Puppeteer 网页出图（高保真精美海报）'),
+        Schema.const('qq_markdown' as OutputFormat).description('📊 QQ 原生 Markdown 表格（含蓝字外链跳转，仅在 qq 平台生效）'),
+      ])
+    )
+      .role('checkbox')
+      .default(['text', 'takumi', 'puppeteer', 'qq_markdown'])
+      .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）'),
+    takumiFontMode: Schema.union([
+      Schema.const('release' as TakumiFontMode).description('📥 Gitee / GitHub Release 下载（推荐，保存至 data/fonts）'),
+      Schema.const('custom' as TakumiFontMode).description('📁 本地自定义字体路径'),
+      Schema.const('none' as TakumiFontMode).description('🚫 不指定字体（使用系统环境内置字体）'),
+    ])
+      .role('radio')
+      .default('release')
+      .description('🔤 Takumi WASM 出图字体模式'),
+    takumiCustomFontPath: Schema.string()
+      .default('')
+      .description('📁 Takumi 自定义字体文件路径（选为「本地自定义字体路径」时生效）'),
+    puppeteerFontMode: Schema.union([
+      Schema.const('npm' as PuppeteerFontMode).description('📦 npm 字体包（推荐，即装即用 lxgw-wenkai-webfont）'),
+      Schema.const('release' as PuppeteerFontMode).description('📥 Gitee / GitHub Release 下载字体（复用 data/fonts）'),
+      Schema.const('custom' as PuppeteerFontMode).description('📁 本地自定义字体路径'),
+      Schema.const('none' as PuppeteerFontMode).description('🚫 不指定字体（使用浏览器默认字体）'),
+    ])
+      .role('radio')
+      .default('npm')
+      .description('🔤 Puppeteer 网页出图字体模式'),
+    puppeteerCustomFontPath: Schema.string()
+      .default('')
+      .description('📁 Puppeteer 自定义字体文件路径（选为「本地自定义字体路径」时生效）'),
+  }).description('🖼️ 渲染与输出格式'),
 
   Schema.object({
     enableQuote: Schema.boolean()

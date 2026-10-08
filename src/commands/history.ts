@@ -1,7 +1,7 @@
 import { Context } from 'koishi'
 import type { Config } from '../config'
 import type { BillboardService } from '../service'
-import { sendReply } from '../utils'
+import { sendReply } from '../utils/reply'
 
 export function registerHistoryCommand(ctx: Context, config: Config, service: BillboardService) {
   ctx.command('周榜.历史', '📜 查看最近收录的周榜期数列表 (bb.history)')

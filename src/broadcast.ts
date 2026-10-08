@@ -1,7 +1,7 @@
 import { Context } from 'koishi'
 import type { Config } from './config'
 import type { BillboardService } from './service'
-import { formatWeeklyMessage } from './utils'
+import { formatWeeklyText } from './format/text'
 
 export function applyBroadcast(ctx: Context, config: Config, service: BillboardService) {
   if (!config.enableBroadcast || !config.broadcastTargets || config.broadcastTargets.length === 0) {
@@ -26,7 +26,7 @@ export function applyBroadcast(ctx: Context, config: Config, service: BillboardS
         if (index.latest_issue > lastKnownIssue) {
           logger.info(`发现新发布周榜！第 ${index.latest_issue} 期，准备广播...`)
           const detail = await service.getWeekly(index.latest_issue)
-          const msg = formatWeeklyMessage(detail, config.defaultTop, config.showCover)
+          const msg = formatWeeklyText(detail, config.defaultTop, config.showCover)
 
           for (const target of config.broadcastTargets) {
             if (!target.enabled || !target.channelId) continue

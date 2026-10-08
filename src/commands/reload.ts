@@ -1,7 +1,7 @@
 import { Context } from 'koishi'
 import type { Config } from '../config'
 import type { BillboardService } from '../service'
-import { sendReply } from '../utils'
+import { sendReply } from '../utils/reply'
 
 export function registerReloadCommand(ctx: Context, config: Config, service: BillboardService) {
   ctx.command('周榜.刷新', '🔄 强制刷新周榜远程数据缓存 (bb.reload)')

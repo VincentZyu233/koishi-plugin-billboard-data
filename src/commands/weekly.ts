@@ -1,7 +1,8 @@
 import { Context } from 'koishi'
 import type { Config } from '../config'
 import type { BillboardService } from '../service'
-import { formatWeeklyMessage, sendReply } from '../utils'
+import { dispatchWeeklyOutput } from '../format'
+import { sendReply } from '../utils/reply'
 
 export function registerWeeklyCommand(ctx: Context, config: Config, service: BillboardService) {
   const logger = ctx.logger('billboard')
@@ -38,8 +39,7 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
           detail = res.detail
         }
 
-        const reply = formatWeeklyMessage(detail, limit, showCover)
-        await sendReply(session, config, reply)
+        await dispatchWeeklyOutput(ctx, session, config, detail, limit, showCover)
       } catch (err: any) {
         logger.error(err)
         await sendReply(session, config, `❌ 获取周榜数据失败: ${err.message || err}`)

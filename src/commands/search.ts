@@ -1,7 +1,7 @@
 import { Context } from 'koishi'
 import type { Config } from '../config'
 import type { BillboardService } from '../service'
-import { sendReply } from '../utils'
+import { sendReply } from '../utils/reply'
 
 export function registerSearchCommand(ctx: Context, config: Config, service: BillboardService) {
   ctx.command('周榜.查歌 <keyword:string>', '🔍 在近期周榜中搜索歌曲排位 (bb.search)')

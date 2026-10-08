@@ -1,8 +1,7 @@
 import { h } from 'koishi'
-import type { Config } from './config'
-import type { WeeklyDetail } from './types'
+import type { WeeklyDetail } from '../types'
 
-export function formatWeeklyMessage(detail: WeeklyDetail, limit: number, showCover: boolean) {
+export function formatWeeklyText(detail: WeeklyDetail, limit: number, showCover: boolean) {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
 
@@ -35,17 +34,4 @@ export function formatWeeklyMessage(detail: WeeklyDetail, limit: number, showCov
   }
 
   return textPart
-}
-
-export async function sendReply(session: any, config: Config, reply: any) {
-  if (!session) return
-  if (config.enableQuote && session.messageId) {
-    if (Array.isArray(reply)) {
-      return await session.send([h.quote(session.messageId), ...reply])
-    } else {
-      return await session.send([h.quote(session.messageId), typeof reply === 'string' ? h.text(reply) : reply])
-    }
-  } else {
-    return await session.send(reply)
-  }
 }
