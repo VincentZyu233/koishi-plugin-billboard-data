@@ -167,7 +167,7 @@ export async function renderWeeklyTakumi(
   const renderer = new takumiModule.Renderer(fontBuffer ? { fonts: [fontBuffer] } : {})
 
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
-  const showDetailed = config.takumiShowDetailedInfo ?? true
+  const showDetailed = (config.takumiDetailedMode ?? 'standard') === 'standard'
 
   // 并发加载封面图与上传者头像
   const coverPromises = items.map(async (item, index) => {
@@ -300,7 +300,7 @@ export async function renderWeeklyTakumi(
     // TOP 1 原视频标题
     if (showDetailed && top1.video_meta?.title) {
       top1Inner.push(
-        text(`原视频: ${truncateText(top1.video_meta.title, 52)}`, {
+        text(`原视频标题: ${truncateText(top1.video_meta.title, 52)}`, {
           fontSize: 13,
           fontWeight: 400,
           color: palette.textSub,
@@ -512,7 +512,7 @@ export async function renderWeeklyTakumi(
               marginBottom: 2,
             },
             children: [
-              text(`原视频: ${truncateText(meta.title, 42)}`, {
+              text(`原视频标题: ${truncateText(meta.title, 42)}`, {
                 fontSize: 12.5,
                 fontWeight: 400,
                 color: palette.textSub,

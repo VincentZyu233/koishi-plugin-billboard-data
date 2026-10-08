@@ -5,7 +5,7 @@ import { type WeeklyDetail, type RenderStats, formatPublishTime, formatCount, fo
 export function buildWeeklyQQMarkdown(
   detail: WeeklyDetail,
   limit: number,
-  showDetailedInfo: boolean = true,
+  detailedMode: 'card' | 'table' = 'card',
   stats?: RenderStats,
   showRenderInfo: boolean = false
 ): string {
@@ -16,7 +16,7 @@ export function buildWeeklyQQMarkdown(
   const timeDesc = timeStr || detail.week ? `📅 ${timeStr} (第 ${detail.week || ''} 周) | ` : ''
   md += `> ${timeDesc}[🌐 查看原专栏](${detail.source_url})\n\n`
 
-  if (showDetailedInfo) {
+  if (detailedMode === 'card') {
     // 方案 B：流式卡片排版
     for (const item of items) {
       let rankBadge = `【TOP ${item.rank}】`
@@ -33,7 +33,7 @@ export function buildWeeklyQQMarkdown(
         const dur = formatDuration(meta.duration)
         const s = meta.stat || ({} as any)
         if (meta.title) {
-          md += `> 🎬 原视频: ${meta.title}\n`
+          md += `> 🎬 原视频标题: ${meta.title}\n`
         }
         md += `> 👤 视频上传者: **${uploaderName}** ｜ ⏱️ 时长: ${dur}\n`
         md += `> 📊 播放: ${formatCount(s.view)} · 弹幕: ${formatCount(s.danmaku)} · 点赞: ${formatCount(s.like)} · 投币: ${formatCount(s.coin)} · 收藏: ${formatCount(s.favorite)}\n\n`
@@ -82,9 +82,9 @@ export async function sendWeeklyQQMarkdown(
     return false
   }
 
-  const showDetailed = config.qqMarkdownShowDetailedInfo ?? true
+  const detailedMode = config.qqMarkdownDetailedMode ?? 'card'
   const showRenderInfo = config.qqMarkdownShowRenderInfo ?? true
-  const content = buildWeeklyQQMarkdown(detail, limit, showDetailed, stats, showRenderInfo)
+  const content = buildWeeklyQQMarkdown(detail, limit, detailedMode, stats, showRenderInfo)
 
   try {
     if (session.bot?.internal?.sendMessage) {

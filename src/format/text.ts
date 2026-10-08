@@ -6,10 +6,11 @@ export function formatWeeklyText(
   detail: WeeklyDetail,
   limit: number,
   showCover: boolean,
-  showDetailedInfo: boolean = true,
+  detailedMode: 'standard' | 'simple' = 'standard',
   stats?: RenderStats,
   showRenderInfo: boolean = true
 ) {
+  const isDetailed = detailedMode === 'standard'
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
 
@@ -32,8 +33,11 @@ export function formatWeeklyText(
       lines.push(`   ▶ https://bilibili.com/video/${item.bvid}`)
     }
 
-    if (showDetailedInfo && item.video_meta) {
+    if (isDetailed && item.video_meta) {
       const meta = item.video_meta
+      if (meta.title) {
+        lines.push(`   🎬 原视频标题: ${meta.title}`)
+      }
       const uploaderName = meta.uploader?.name || '未知'
       const dur = formatDuration(meta.duration)
       lines.push(`   👤 视频上传者: ${uploaderName} (${dur})`)

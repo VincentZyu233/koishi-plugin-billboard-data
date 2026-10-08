@@ -1,6 +1,18 @@
 # koishi-plugin-billboard-data
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-billboard-data?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-billboard-data)
+[![npm](https://img.shields.io/npm/v/koishi-plugin-billboard-data?style=flat-square&logo=npm)](https://www.npmjs.com/package/koishi-plugin-billboard-data)
+[![npm-download](https://img.shields.io/npm/dm/koishi-plugin-billboard-data?style=flat-square&logo=npm)](https://npm-stat.com/charts.html?package=koishi-plugin-billboard-data)
+
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VincentZyuApps/koishi-plugin-billboard-data)
+[![Gitee](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/vincent-zyu/koishi-plugin-billboard-data)
+
+[![QQ群](https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white)](https://qm.qq.com/q/ZHj33L5cuC)
+
+<h2>💬 交流反馈</h2>
+<p>🐛 Bug 反馈 / 💡 建议 / 👨‍💻 插件开发交流，欢迎加群：</p>
+<p><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了）</del></p> 
+<p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
+<p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
 用于查询《Bili Board 术力口周榜》（VOCALOID / 虚拟歌手周榜）的 Koishi 插件。
 
@@ -64,7 +76,7 @@
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `textShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等） |
+| `textDetailedMode` | `"standard" \| "simple"` | `"standard"` | 📋 纯文本信息详细度模式（`standard` 包含原视频标题与全量指标；`simple` 极简排版） |
 | `textShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在文本末尾展示 API 请求耗时、尝试源数量及总耗时 |
 
 ### ⚡ Takumi WASM 渲染设置
@@ -74,7 +86,7 @@
 | `takumiFontMode` | `"release" \| "custom" \| "none"` | `"release"` | 🔤 Takumi WASM 出图字体模式（支持 Release 下载校验、本地路径或系统内置） |
 | `takumiCustomFontPath` | `string` | `""` | 📁 Takumi 本地自定义字体路径 |
 | `takumiShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图） |
-| `takumiShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
+| `takumiDetailedMode` | `"standard" \| "simple"` | `"standard"` | 📋 Takumi 出图信息详细度模式（`standard` 包含原视频标题与全量指标；`simple` 极简看板） |
 | `takumiShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Takumi WASM 渲染及总耗时 |
 
 ### 🎨 Puppeteer 网页出图设置
@@ -84,14 +96,14 @@
 | `puppeteerFontMode` | `"npm" \| "release" \| "custom" \| "none"` | `"npm"` | 🔤 Puppeteer 网页出图字体模式（支持 npm 字体包、Release 字体、本地路径或默认字体） |
 | `puppeteerCustomFontPath` | `string` | `""` | 📁 Puppeteer 本地自定义字体路径 |
 | `puppeteerShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带精美缩略图） |
-| `puppeteerShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
+| `puppeteerDetailedMode` | `"standard" \| "simple"` | `"standard"` | 📋 Puppeteer 出图详细度模式（`standard` 展示原视频标题与六维指标；`simple` 隐藏指标） |
 | `puppeteerShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Puppeteer 渲染及总耗时 |
 
 ### 📊 QQ 原生 Markdown 设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `qqMarkdownShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格） |
+| `qqMarkdownDetailedMode` | `"card" \| "table"` | `"card"` | 📋 QQ 原生 Markdown 排版模式（`card` 为流式卡片图文；`table` 为紧凑表格） |
 | `qqMarkdownShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在 QQ Markdown 末尾追加展示 API 请求、尝试源数量及总耗时 |
 
 ### ⚙️ 通用偏好设置

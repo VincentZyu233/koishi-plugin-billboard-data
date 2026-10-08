@@ -29,7 +29,7 @@ export async function dispatchWeeklyOutput(
       detail,
       limit,
       showCover,
-      config.textShowDetailedInfo ?? true,
+      config.textDetailedMode ?? 'standard',
       stats,
       config.textShowRenderInfo ?? true
     )

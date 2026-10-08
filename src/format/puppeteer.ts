@@ -114,7 +114,7 @@ export async function renderWeeklyPuppeteer(
 
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const fontCss = await resolveFontCss(ctx, config)
-  const showDetailed = config.puppeteerShowDetailedInfo ?? true
+  const showDetailed = (config.puppeteerDetailedMode ?? 'standard') === 'standard'
 
   const top1 = items[0]
   const otherItems = items.slice(1)
@@ -566,7 +566,7 @@ export async function renderWeeklyPuppeteer(
     </div>
     <div class="top1-content">
       <div class="top1-title">${top1.title}</div>
-      ${showDetailed && top1.video_meta?.title ? `<div class="top1-orig-title">原视频: ${top1.video_meta.title}</div>` : ''}
+      ${showDetailed && top1.video_meta?.title ? `<div class="top1-orig-title">原视频标题: ${top1.video_meta.title}</div>` : ''}
       ${showCover && top1.pic_url ? `
       <div class="top1-cover-box">
         <img src="${top1.pic_url}" alt="Cover" />
@@ -630,7 +630,7 @@ export async function renderWeeklyPuppeteer(
               </div>
               ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
             </div>
-            ${meta.title ? `<div class="card-orig-title">原视频: ${meta.title}</div>` : ''}
+            ${meta.title ? `<div class="card-orig-title">原视频标题: ${meta.title}</div>` : ''}
             <div class="card-row-2">
               ${renderUploaderAvatarHtml(meta.uploader?.face, uploaderName, 22)}
               <span class="uploader-text">视频上传者: ${uploaderName}</span>

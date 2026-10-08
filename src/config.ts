@@ -11,6 +11,10 @@ export interface BroadcastTarget {
 export type OutputFormat = 'text' | 'takumi' | 'puppeteer' | 'qq_markdown'
 export type TakumiFontMode = 'release' | 'custom' | 'none'
 export type PuppeteerFontMode = 'npm' | 'release' | 'custom' | 'none'
+export type TextDetailedMode = 'standard' | 'simple'
+export type TakumiDetailedMode = 'standard' | 'simple'
+export type PuppeteerDetailedMode = 'standard' | 'simple'
+export type QQMarkdownDetailedMode = 'card' | 'table'
 
 export interface Config {
   // 消息交互设置
@@ -22,22 +26,22 @@ export interface Config {
   customProxyUrl: string
   outputFormats: OutputFormat[]
   // 纯文本设置
-  textShowDetailedInfo: boolean
+  textDetailedMode: TextDetailedMode
   textShowRenderInfo: boolean
   // Takumi WASM 渲染设置
   takumiFontMode: TakumiFontMode
   takumiCustomFontPath: string
   takumiShowAllCovers: boolean
-  takumiShowDetailedInfo: boolean
+  takumiDetailedMode: TakumiDetailedMode
   takumiShowRenderInfo: boolean
   // Puppeteer 网页出图设置
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
   puppeteerShowAllCovers: boolean
-  puppeteerShowDetailedInfo: boolean
+  puppeteerDetailedMode: PuppeteerDetailedMode
   puppeteerShowRenderInfo: boolean
   // QQ 原生 Markdown 设置
-  qqMarkdownShowDetailedInfo: boolean
+  qqMarkdownDetailedMode: QQMarkdownDetailedMode
   qqMarkdownShowRenderInfo: boolean
   // 常规偏好与广播
   defaultTop: number
@@ -97,9 +101,13 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('📤 消息输出格式'),
 
   Schema.object({
-    textShowDetailedInfo: Schema.boolean()
-      .default(true)
-      .description('📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等）'),
+    textDetailedMode: Schema.union([
+      Schema.const('standard' as TextDetailedMode).description('📋 详细排版（展示原视频标题、上传者、时长、播放/弹幕/点赞数据等）'),
+      Schema.const('simple' as TextDetailedMode).description('⚡ 极简排版（仅展示排名、歌曲名与 BV 号）'),
+    ])
+      .role('radio')
+      .default('standard')
+      .description('📋 纯文本信息详细度模式'),
     textShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在文本末尾展示 API 请求耗时、尝试源数量与总耗时'),
@@ -120,9 +128,13 @@ export const Config: Schema<Config> = Schema.intersect([
     takumiShowAllCovers: Schema.boolean()
       .default(true)
       .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图）'),
-    takumiShowDetailedInfo: Schema.boolean()
-      .default(true)
-      .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
+    takumiDetailedMode: Schema.union([
+      Schema.const('standard' as TakumiDetailedMode).description('📋 完整看板（展示原视频标题、UP 主昵称/头像、时长及播放全量指标）'),
+      Schema.const('simple' as TakumiDetailedMode).description('⚡ 极简看板（仅保留排位、封面与曲目名称）'),
+    ])
+      .role('radio')
+      .default('standard')
+      .description('📋 Takumi 出图信息详细度模式'),
     takumiShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在出图水印处展示 API 请求耗时、尝试源数量与 WASM 渲染耗时'),
@@ -144,18 +156,26 @@ export const Config: Schema<Config> = Schema.intersect([
     puppeteerShowAllCovers: Schema.boolean()
       .default(true)
       .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带高保真缩略图）'),
-    puppeteerShowDetailedInfo: Schema.boolean()
-      .default(true)
-      .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
+    puppeteerDetailedMode: Schema.union([
+      Schema.const('standard' as PuppeteerDetailedMode).description('📋 精美海报卡片（展示原视频标题、UP 主、播放六维指标条）'),
+      Schema.const('simple' as PuppeteerDetailedMode).description('⚡ 精简海报（隐藏下方统计指标条）'),
+    ])
+      .role('radio')
+      .default('standard')
+      .description('📋 Puppeteer 出图信息详细度模式'),
     puppeteerShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在网页底栏展示 API 请求耗时、尝试源数量与浏览器渲染耗时'),
   }).description('🎨 Puppeteer 网页出图设置'),
 
   Schema.object({
-    qqMarkdownShowDetailedInfo: Schema.boolean()
-      .default(true)
-      .description('📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格）'),
+    qqMarkdownDetailedMode: Schema.union([
+      Schema.const('card' as QQMarkdownDetailedMode).description('🎴 卡片流式排版（展示原视频标题、UP 主、播放六维指标与独立播放外链）'),
+      Schema.const('table' as QQMarkdownDetailedMode).description('📊 紧凑表格排版（三列表格：排名、歌曲名、播放跳转）'),
+    ])
+      .role('radio')
+      .default('card')
+      .description('📋 QQ 原生 Markdown 排版呈现模式'),
     qqMarkdownShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在 Markdown 末尾展示 API 请求耗时、尝试源数量与总耗时'),

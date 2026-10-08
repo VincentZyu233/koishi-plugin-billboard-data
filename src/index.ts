@@ -8,6 +8,7 @@ import { applyBroadcast } from './broadcast'
 export const name = 'billboard-data'
 export const inject = ['http']
 export { ConfigSchema as Config }
+export * from './usage'
 
 export function apply(ctx: Context, config: Config) {
   const service = new BillboardService(ctx, config)
