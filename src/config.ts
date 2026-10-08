@@ -29,7 +29,7 @@ export const Config: Schema<Config> = Schema.intersect([
       Schema.const('none').description('不走代理（直连访问）'),
       Schema.const('custom').description('走指定代理 URL（如本地科学代理）'),
       Schema.const('ghproxy').description('走公网 GitHub 加速代理（如 gh-proxy 镜像）'),
-    ]).role('radio').default('none').description('网络代理模式'),
+    ]).role('radio').default('ghproxy').description('网络代理模式'),
     customProxyUrl: Schema.string()
       .default('http://127.0.0.1:7890')
       .description('自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5，代理模式选为「走指定代理 URL」时生效）'),

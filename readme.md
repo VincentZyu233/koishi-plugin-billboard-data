@@ -41,9 +41,9 @@
 - **主数据源 (`dataSource`)**：默认 `https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data`
 - **备用数据源 (`fallbackSource`)**：默认 `https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data`
 - **网络代理模式 (`proxyMode`)**：
-  - `none`：不走代理（直连访问，默认）
+  - `none`：不走代理（直连访问）
   - `custom`：走指定代理 URL（支持 HTTP/HTTPS/SOCKS5）
-  - `ghproxy`：走公网 GitHub 加速代理镜像
+  - `ghproxy`：走公网 GitHub 加速代理镜像（默认）
 - **自定义代理地址 (`customProxyUrl`)**：默认 `http://127.0.0.1:7890`（代理模式选为指定代理时生效）
 - **公网 GitHub 代理前缀 (`ghProxyPrefix`)**：默认 `https://gh-proxy.org/`（代理模式选为公网加速时生效）
 - **默认展示数量 (`defaultTop`)**：默认 10，最大 20
