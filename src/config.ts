@@ -71,8 +71,14 @@ export const Config: Schema<Config> = Schema.intersect([
       enabled: Schema.boolean().default(true).description('✅ 是否启用'),
     }))
       .role('table')
-      .default([])
-      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号及是否启用等）'),
+      .default([{
+        note: '默认群聊',
+        platform: 'onebot',
+        selfId: '',
+        channelId: '958366323',
+        enabled: true,
+      }])
+      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号及是否启用等；selfId 留空将向该平台所有满足条件的 Bot 发送）'),
     checkInterval: Schema.number()
       .default(15)
       .min(1)

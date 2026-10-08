@@ -36,21 +36,53 @@
 
 ## ⚙️ 配置项说明
 
-在 Koishi 控制台中可直接进行图形化配置：
+在 Koishi 控制台中可直接进行图形化配置。
 
-- **数据源列表 (`dataSources`)**：默认包含 jsDelivr CDN 与 GitHub Raw（按顺序从前往后依次尝试）
-- **网络代理模式 (`proxyMode`)**：
-  - `none`：不走代理（直连访问）
-  - `custom`：走指定代理 URL（支持 HTTP/HTTPS/SOCKS5）
-  - `ghproxy`：走公网 GitHub 加速代理镜像（默认）
-- **自定义代理地址 (`customProxyUrl`)**：默认 `http://127.0.0.1:7890`（代理模式选为指定代理时生效）
-- **公网 GitHub 代理前缀 (`ghProxyPrefix`)**：默认 `https://gh-proxy.org/`（代理模式选为公网加速时生效）
-- **引用回复 (`enableQuote`)**：默认 `true`
-- **默认展示数量 (`defaultTop`)**：默认 10，最大 20
-- **附带封面海报 (`showCover`)**：默认 `true`
-- **启用新榜广播 (`enableBroadcast`)**：默认 `false`
-- **广播目标表格 (`broadcastTargets`)**：可视化表格配置推送目标（包含备注、platform、selfId、channelId 及独立启用开关）
-- **轮询检测周期 (`checkInterval`)**：默认每 15 分钟检测一次
+### 🌐 数据源设置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `dataSources` | `string[]` | jsDelivr + GitHub Raw | 📡 数据源列表（按顺序从前往后依次尝试请求） |
+
+### 🛡️ 网络代理配置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `proxyMode` | `"none" \| "custom" \| "ghproxy"` | `"ghproxy"` | 🚀 网络代理模式（直连 / 指定代理 / 公网 GitHub 镜像加速） |
+| `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5） |
+| `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀（代理模式选为公网加速时生效） |
+
+### 🎨 显示偏好
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableQuote` | `boolean` | `true` | 💬 是否启用引用回复 |
+| `defaultTop` | `number` | `10` | 🔢 默认展示前多少名（可在 1 ~ 20 之间调节，亦可通过 `-n` 参数覆盖） |
+| `showCover` | `boolean` | `true` | 🖼️ 查询周榜时是否附带第一名的榜单海报图片 |
+
+### 📢 订阅推送
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableBroadcast` | `boolean` | `false` | 🔔 是否启用每周新榜自动广播提醒 |
+| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号及启用开关） |
+| `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测周期（分钟） |
+
+#### 🎯 广播目标表格 (`broadcastTargets`) 说明
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `note` | `string` | 📝 备注，仅用于在控制台标记识别目标 |
+| `platform` | `string` | 🎯 平台标识，例如 `onebot`、`qq`、`discord` |
+| `selfId` | `string` | 🤖 Bot 自身账号 ID。**留空时向该 platform 下所有满足条件的在线 Bot 发送**；填写时精确匹配 |
+| `channelId` | `string` | 📡 目标群号或频道 ID，OneBot 填真实 QQ 群号 |
+| `enabled` | `boolean` | ✅ 独立启用开关，关闭后跳过该条目标 |
+
+> **默认预设项**：
+> - 平台: `onebot`
+> - 群号 / 频道 ID: `958366323`
+> - selfId: 留空（自动向该平台全部满足条件的在线 Bot 广播）
+> - 启用: `true`
 
 ---
 

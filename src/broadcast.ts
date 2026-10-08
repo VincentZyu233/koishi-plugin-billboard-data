@@ -32,15 +32,21 @@ export function applyBroadcast(ctx: Context, config: Config, service: BillboardS
             if (!target.enabled || !target.channelId) continue
 
             try {
-              const bot = ctx.bots.find(b => {
+              const matchedBots = ctx.bots.filter(b => {
                 if (b.platform !== target.platform) return false
-                if (target.selfId && b.selfId !== target.selfId) return false
+                if (target.selfId && target.selfId.trim() && b.selfId !== target.selfId.trim()) return false
                 return true
               })
 
-              if (bot) {
-                await bot.sendMessage(target.channelId, msg)
-                logger.info(`[广播推送] 成功推送到 [${target.platform}:${target.channelId}]`)
+              if (matchedBots.length > 0) {
+                for (const bot of matchedBots) {
+                  try {
+                    await bot.sendMessage(target.channelId, msg)
+                    logger.info(`[广播推送] Bot(${bot.selfId}) 成功推送到 [${target.platform}:${target.channelId}]`)
+                  } catch (sendErr) {
+                    logger.warn(`[广播推送] Bot(${bot.selfId}) 发送到 [${target.platform}:${target.channelId}] 失败: ${sendErr}`)
+                  }
+                }
               } else {
                 logger.warn(`[广播推送] 未找到匹配的在线 Bot: platform=${target.platform}, selfId=${target.selfId || '*'}`)
               }
