@@ -4,7 +4,7 @@ import type { BillboardService } from '../service'
 import { sendReply } from '../utils'
 
 export function registerReloadCommand(ctx: Context, config: Config, service: BillboardService) {
-  ctx.command('周榜.刷新', '🔄 强制刷新周榜远程数据缓存')
+  ctx.command('周榜.刷新', '🔄 强制刷新周榜远程数据缓存 (bb.reload)')
     .alias('bb.reload')
     .action(async ({ session }) => {
       try {

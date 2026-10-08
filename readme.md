@@ -46,11 +46,12 @@
 
 ### 🛡️ 网络代理配置
 
+> 请求时插件将对每个数据源依次自动尝试：**gh-proxy 镜像加速**（若配置且为 GitHub 域名） ➔ **自定义代理**（若配置） ➔ **直连访问**。配置项留空即表示跳过该代理方式。
+
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `proxyMode` | `"none" \| "custom" \| "ghproxy"` | `"ghproxy"` | 🚀 网络代理模式（直连 / 指定代理 / 公网 GitHub 镜像加速） |
-| `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5） |
-| `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀（代理模式选为公网加速时生效） |
+| `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀（留空表示不使用；若填写且为 GitHub 域名，优先加速访问） |
+| `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用） |
 
 ### 🎨 显示偏好
 

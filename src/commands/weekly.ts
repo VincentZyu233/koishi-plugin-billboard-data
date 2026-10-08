@@ -8,6 +8,13 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
 
   ctx.command('周榜 [issue:number]', '🎵 查看 Bili Board 术力口周榜')
     .alias('术力口周榜', 'bb')
+    .usage([
+      '快捷指令速查：',
+      '  bb [期数]         查看最新或指定期数周榜',
+      '  bb.history        查看最近收录的周榜期数一览',
+      '  bb.search <歌名>  在近期周榜中搜索歌曲排位战绩',
+      '  bb.reload         强制刷新远程数据缓存',
+    ].join('\n'))
     .option('limit', '-n <limit:number> 展示排名前几位', { fallback: config.defaultTop })
     .option('cover', '-c 附带第一名封面图')
     .option('noCover', '-C 不展示封面图')

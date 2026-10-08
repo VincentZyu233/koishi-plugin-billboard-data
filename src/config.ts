@@ -10,9 +10,8 @@ export interface BroadcastTarget {
 
 export interface Config {
   dataSources: string[]
-  proxyMode: 'none' | 'custom' | 'ghproxy'
-  customProxyUrl: string
   ghProxyPrefix: string
+  customProxyUrl: string
   enableQuote: boolean
   defaultTop: number
   showCover: boolean
@@ -33,18 +32,13 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('🌐 数据源设置'),
 
   Schema.object({
-    proxyMode: Schema.union([
-      Schema.const('none').description('⚡ 不走代理（直连访问）'),
-      Schema.const('custom').description('🔀 走指定代理 URL（如本地代理）'),
-      Schema.const('ghproxy').description('🚀 走公网 GitHub 加速代理（如 gh-proxy 镜像）'),
-    ]).role('radio').default('ghproxy').description('🚀 网络代理模式'),
-    customProxyUrl: Schema.string()
-      .default('http://127.0.0.1:7890')
-      .description('🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5，代理模式选为「走指定代理 URL」时生效）'),
     ghProxyPrefix: Schema.string()
       .default('https://gh-proxy.org/')
-      .description('🔗 公网 GitHub 代理前缀（代理模式选为「公网 GitHub 加速代理」时生效）'),
-  }).description('🛡️ 网络代理配置'),
+      .description('🔗 公网 GitHub 代理前缀（留空表示不使用；若填写且当前数据源为 GitHub 地址，将优先通过该代理加速访问）'),
+    customProxyUrl: Schema.string()
+      .default('http://127.0.0.1:7890')
+      .description('🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用；将在公网代理失败或非 GitHub 地址时尝试通过该代理访问）'),
+  }).description('🛡️ 网络代理配置（请求时将依次自动尝试：gh-proxy 镜像加速 -> 自定义本地代理 -> 直连）'),
 
   Schema.object({
     enableQuote: Schema.boolean()

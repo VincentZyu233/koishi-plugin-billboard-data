@@ -4,7 +4,7 @@ import type { BillboardService } from '../service'
 import { sendReply } from '../utils'
 
 export function registerSearchCommand(ctx: Context, config: Config, service: BillboardService) {
-  ctx.command('周榜.查歌 <keyword:string>', '🔍 在近期周榜中搜索歌曲排位')
+  ctx.command('周榜.查歌 <keyword:string>', '🔍 在近期周榜中搜索歌曲排位 (bb.search)')
     .alias('周榜搜歌', 'bb.search')
     .action(async ({ session }, keyword) => {
       if (!keyword || !keyword.trim()) {

@@ -4,7 +4,7 @@ import type { BillboardService } from '../service'
 import { sendReply } from '../utils'
 
 export function registerHistoryCommand(ctx: Context, config: Config, service: BillboardService) {
-  ctx.command('周榜.历史', '📜 查看最近收录的周榜期数列表')
+  ctx.command('周榜.历史', '📜 查看最近收录的周榜期数列表 (bb.history)')
     .alias('周榜历史', 'bb.history')
     .action(async ({ session }) => {
       try {

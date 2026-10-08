@@ -9,22 +9,8 @@ export class BillboardService {
 
   constructor(private ctx: Context, private config: Config) {}
 
-  private resolveUrl(rawUrl: string): string {
-    if (this.config.proxyMode === 'ghproxy' && this.config.ghProxyPrefix) {
-      if (/^https?:\/\/(raw\.githubusercontent\.com|github\.com|gist\.githubusercontent\.com)/i.test(rawUrl)) {
-        const prefix = this.config.ghProxyPrefix.replace(/\/+$/, '')
-        return `${prefix}/${rawUrl}`
-      }
-    }
-    return rawUrl
-  }
-
-  private getRequestOptions(timeout: number) {
-    const options: any = { timeout }
-    if (this.config.proxyMode === 'custom' && this.config.customProxyUrl) {
-      options.proxy = this.config.customProxyUrl.trim()
-    }
-    return options
+  private isGitHubUrl(url: string): boolean {
+    return /^https?:\/\/(raw\.githubusercontent\.com|github\.com|gist\.githubusercontent\.com)/i.test(url)
   }
 
   private async fetchWithFallback<T>(path: string): Promise<T> {
@@ -32,19 +18,54 @@ export class BillboardService {
       ? this.config.dataSources
       : ['https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data']
 
+    const logger = this.ctx.logger('billboard')
     let lastErr: any = null
-    for (let i = 0; i < sources.length; i++) {
-      const base = sources[i].replace(/\/+$/, '')
+
+    for (let sIdx = 0; sIdx < sources.length; sIdx++) {
+      const base = sources[sIdx].replace(/\/+$/, '')
       const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
-      const url = this.resolveUrl(rawUrl)
-      try {
-        return await this.ctx.http.get<T>(url, this.getRequestOptions(8000))
-      } catch (err) {
-        lastErr = err
-        this.ctx.logger('billboard').warn(`数据源 [${i + 1}/${sources.length}] 请求失败 (${url}): ${err}`)
+
+      // 构建针对当前 URL 的候选请求方案列表（依次尝试：gh-proxy -> 自定义代理 -> 直连）
+      const attempts: { desc: string; url: string; options: { timeout: number; proxy?: string } }[] = []
+
+      // 1. 公网 GitHub 加速代理（若填写且为 GitHub 域名）
+      if (this.config.ghProxyPrefix?.trim() && this.isGitHubUrl(rawUrl)) {
+        const prefix = this.config.ghProxyPrefix.trim().replace(/\/+$/, '')
+        attempts.push({
+          desc: 'gh-proxy 镜像加速',
+          url: `${prefix}/${rawUrl}`,
+          options: { timeout: 8000 },
+        })
+      }
+
+      // 2. 自定义本地代理（若填写）
+      if (this.config.customProxyUrl?.trim()) {
+        attempts.push({
+          desc: '自定义本地代理',
+          url: rawUrl,
+          options: { timeout: 8000, proxy: this.config.customProxyUrl.trim() },
+        })
+      }
+
+      // 3. 直连访问（无代理）
+      attempts.push({
+        desc: '直连访问',
+        url: rawUrl,
+        options: { timeout: 8000 },
+      })
+
+      // 依次尝试该源的候选方案
+      for (const attempt of attempts) {
+        try {
+          return await this.ctx.http.get<T>(attempt.url, attempt.options)
+        } catch (err: any) {
+          lastErr = err
+          logger.warn(`数据源 [${sIdx + 1}/${sources.length}] 尝试 [${attempt.desc}] 失败 (${attempt.url}): ${err.message || err}`)
+        }
       }
     }
-    throw new Error(`所有配置的数据源均请求失败: ${lastErr?.message || lastErr}`)
+
+    throw new Error(`所有配置的数据源及代理策略均请求失败: ${lastErr?.message || lastErr}`)
   }
 
   async getIndex(force = false): Promise<IndexData> {
