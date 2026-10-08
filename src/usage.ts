@@ -46,7 +46,7 @@ export const usage = `
     <span>🎵</span> Koishi 插件：术力口周榜 billboard-data
   </h1>
   <div style="font-size: 13.5px; opacity: 0.85; margin-bottom: 12px;">
-    🎯 <b>插件版本：</b><code>v\${pkg.version}</code>
+    🎯 <b>插件版本：</b><code>v${pkg.version}</code>
   </div>
 
   <p style="margin: 10px 0;">
