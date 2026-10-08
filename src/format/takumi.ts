@@ -744,11 +744,16 @@ export async function renderWeeklyTakumi(
         padding: '6px 4px 2px 4px',
       },
       children: [
-        text('数据来源于 Bilibili @Bili Board Atel 周榜公开专栏', {
-          fontSize: 12,
-          color: palette.textMuted,
-          fontWeight: 400,
-        }),
+        text(
+          isNico
+            ? '数据来源于 Bilibili @VOCALOID_SONGS 日榜专栏'
+            : '数据来源于 Bilibili @Bili Board Atel 周榜公开专栏',
+          {
+            fontSize: 12,
+            color: palette.textMuted,
+            fontWeight: 400,
+          }
+        ),
         container({
           style: {
             display: 'flex',
