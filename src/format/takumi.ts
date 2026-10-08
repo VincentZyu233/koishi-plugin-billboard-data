@@ -746,8 +746,8 @@ export async function renderWeeklyTakumi(
       children: [
         text(
           isNico
-            ? '数据来源于 Bilibili @Elvansphere 日榜专栏'
-            : '数据来源于 Bilibili @Bili-Board_Atel 周榜公开专栏',
+            ? '数据来源于 Bilibili @Elvansphere（VOCALOID SONGS 专栏）'
+            : '数据来源于 Bilibili @Bili-Board_Atel（周榜公开专栏）',
           {
             fontSize: 12,
             color: palette.textMuted,
