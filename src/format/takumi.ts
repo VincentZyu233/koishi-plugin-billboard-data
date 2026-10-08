@@ -744,16 +744,34 @@ export async function renderWeeklyTakumi(
         padding: '6px 4px 2px 4px',
       },
       children: [
-        text(
-          isNico
-            ? '数据来源于 Bilibili @Elvansphere（VOCALOID SONGS 专栏）'
-            : '数据来源于 Bilibili @Bili-Board_Atel（周榜公开专栏）',
-          {
-            fontSize: 12,
-            color: palette.textMuted,
-            fontWeight: 400,
-          }
-        ),
+        container({
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+          },
+          children: [
+            text(
+              isNico
+                ? '数据来源于 Bilibili @Elvansphere（Niconico Vocaloid Songs 周榜 TOP20 专栏）'
+                : '数据来源于 Bilibili @Bili-Board_Atel（Bilibili Vocaloid Songs 周榜 TOP20 专栏）',
+              {
+                fontSize: 12,
+                color: palette.textMuted,
+                fontWeight: 400,
+              }
+            ),
+            ...(detail.title
+              ? [
+                  text(`📌 专栏原标题: ${detail.title}`, {
+                    fontSize: 11,
+                    color: '#71767D',
+                    fontWeight: 500,
+                  }),
+                ]
+              : []),
+          ],
+        }),
         container({
           style: {
             display: 'flex',

@@ -13,7 +13,9 @@ export function buildWeeklyQQMarkdown(
   const isNico = detail.source === 'niconico' || detail.title.includes('ニコニコ')
   const chartTitle = isNico ? 'ニコニコ VOCALOID SONGS TOP20' : 'Bili Board 术力口周榜'
   let md = `# 🎵【${chartTitle}】第 ${detail.issue} 期\n\n`
-
+  if (detail.title) {
+    md += `> 📌 专栏原标题：[${detail.title}](${detail.source_url})\n>\n`
+  }
   const timeStr = formatPublishTime(detail)
   const timeDesc = timeStr || detail.week ? `📅 ${timeStr} (第 ${detail.week || ''} 周) | ` : ''
   md += `> ${timeDesc}[🌐 查看原专栏](${detail.source_url})\n\n`
@@ -63,7 +65,10 @@ export function buildWeeklyQQMarkdown(
     }
   }
 
-  md += `\n> 💡 发送「周榜 [期数]」查看历史，发送「周榜.查歌 <歌名>」检索战绩\n`
+  const sourceCredit = isNico
+    ? '> 💡 数据来源于 Bilibili @Elvansphere（Niconico Vocaloid Songs 周榜 TOP20 专栏）\n'
+    : '> 💡 数据来源于 Bilibili @Bili-Board_Atel（Bilibili Vocaloid Songs 周榜 TOP20 专栏）\n'
+  md += `\n${sourceCredit}> 💡 发送「周榜 [期数]」查看历史，发送「周榜.查歌 <歌名>」检索战绩\n`
   if (showRenderInfo && stats) {
     const totalMs = Date.now() - stats.commandStartTime
     md += `\n---\n> ⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | 📊 总耗时: ${totalMs}ms\n`

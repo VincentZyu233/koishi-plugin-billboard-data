@@ -18,6 +18,9 @@ export function formatWeeklyText(
   const chartTitle = isNico ? 'ニコニコ VOCALOID SONGS TOP20' : 'Bili Board 术力口周榜'
 
   lines.push(`🎵【${chartTitle}】第 ${detail.issue} 期`)
+  if (detail.title) {
+    lines.push(`📌 专栏原标题: ${detail.title}`)
+  }
   const timeStr = formatPublishTime(detail)
   if (timeStr || detail.week) {
     lines.push(`📅 时间: ${timeStr} (第 ${detail.week || ''} 周)`)
@@ -61,6 +64,10 @@ export function formatWeeklyText(
   }
 
   lines.push('━━━━━━━━━━━━━━━')
+  const sourceCredit = isNico
+    ? '💡 数据来源于 Bilibili @Elvansphere（Niconico Vocaloid Songs 周榜 TOP20 专栏）'
+    : '💡 数据来源于 Bilibili @Bili-Board_Atel（Bilibili Vocaloid Songs 周榜 TOP20 专栏）'
+  lines.push(sourceCredit)
   lines.push(`💡 发送「周榜 [期数]」查看历史，发送「周榜.查歌 <歌名>」检索战绩`)
 
   if (showRenderInfo && stats) {

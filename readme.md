@@ -18,8 +18,8 @@
 
 用于查询 VOCALOID / 虚拟歌手周榜（术力口周榜）的 Koishi 插件。
 同时支持：
-1. **Bili Board 术力口周榜**（B站本土术力口周榜，数据来源于 @Bili Board Atel）
-2. **ニコニコ VOCALOID SONGS TOP20**（日本 Niconico 与 Billboard JAPAN 联合官方周榜，数据同步于 @秋叶-风）
+1. **Bili Board 术力口周榜**（B站本土术力口周榜，数据来源于 @Bili-Board_Atel）
+2. **ニコニコ VOCALOID SONGS TOP20**（日本 Niconico 与 Billboard JAPAN 联合官方周榜，数据同步于 @Elvansphere）
 
 数据源来自于由 GitHub Actions 自动化每周定时归档的公开数据仓库 [billboard-data](https://github.com/VincentZyuApps/billboard-data)。
 
