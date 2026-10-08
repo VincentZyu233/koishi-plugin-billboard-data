@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import type { WeeklyDetail } from '../types'
+import { type WeeklyDetail, formatPublishTime } from '../types'
 import { ensureLxgwFont, getLxgwFontPath } from '../utils/font'
 
 declare module 'koishi' {
@@ -340,7 +340,7 @@ export async function renderWeeklyPuppeteer(
     <div class="title-group">
       <h1>🎵 Bili Board 术力口周榜</h1>
       <p>
-        <span>📅 ${detail.date || '近期'}</span>
+        <span>📅 ${formatPublishTime(detail)}</span>
         <span>·</span>
         <span>第 ${detail.week || ''} 周</span>
         <span>·</span>

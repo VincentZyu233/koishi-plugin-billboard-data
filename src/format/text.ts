@@ -1,13 +1,14 @@
 import { h } from 'koishi'
-import type { WeeklyDetail } from '../types'
+import { type WeeklyDetail, formatPublishTime } from '../types'
 
 export function formatWeeklyText(detail: WeeklyDetail, limit: number, showCover: boolean) {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
 
   lines.push(`🎵【Bili Board 术力口周榜】第 ${detail.issue} 期`)
-  if (detail.date || detail.week) {
-    lines.push(`📅 时间: ${detail.date || ''} (第 ${detail.week || ''} 周)`)
+  const timeStr = formatPublishTime(detail)
+  if (timeStr || detail.week) {
+    lines.push(`📅 时间: ${timeStr} (第 ${detail.week || ''} 周)`)
   }
   lines.push(`🔗 专栏: ${detail.source_url}`)
   lines.push('━━━━━━━━━━━━━━━')

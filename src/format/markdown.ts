@@ -1,12 +1,13 @@
 import type { Session, Context } from 'koishi'
 import type { Config } from '../config'
-import type { WeeklyDetail } from '../types'
+import { type WeeklyDetail, formatPublishTime } from '../types'
 
 export function buildWeeklyQQMarkdown(detail: WeeklyDetail, limit: number): string {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   let md = `# 🎵【Bili Board 术力口周榜】第 ${detail.issue} 期\n\n`
   
-  const timeDesc = detail.date || detail.week ? `📅 ${detail.date || ''} (第 ${detail.week || ''} 周) | ` : ''
+  const timeStr = formatPublishTime(detail)
+  const timeDesc = timeStr || detail.week ? `📅 ${timeStr} (第 ${detail.week || ''} 周) | ` : ''
   md += `> ${timeDesc}[🌐 查看原专栏](${detail.source_url})\n\n`
 
   md += `| 排名 | 歌曲名称 | 视频链接 |\n`

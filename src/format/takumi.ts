@@ -5,7 +5,7 @@ import { container, text, image, type Node } from '@takumi-rs/helpers'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import type { WeeklyDetail } from '../types'
+import { type WeeklyDetail, formatPublishTime } from '../types'
 import { ensureLxgwFont } from '../utils/font'
 
 const nodeRequire = createRequire(
@@ -162,7 +162,7 @@ export async function renderWeeklyTakumi(
             }),
           ],
         }),
-        text(`发布日期: ${detail.date || '近期'} · 第 ${detail.week || ''} 周`, {
+        text(`发布时间: ${formatPublishTime(detail)} · 第 ${detail.week || ''} 周`, {
           fontSize: 14,
           color: palette.textSub,
           fontWeight: 400,
