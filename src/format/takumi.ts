@@ -791,7 +791,7 @@ export async function renderWeeklyTakumi(
   const renderStartTime = Date.now()
   const dpr = config.takumiScale || 1.5
   const imageBuffer = await renderer.render(root, {
-    width: WIDTH,
+    width: Math.round(WIDTH * dpr),
     format: 'png',
     devicePixelRatio: dpr,
   })
