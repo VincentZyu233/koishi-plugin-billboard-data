@@ -1,15 +1,23 @@
 import { Schema } from 'koishi'
 
+export interface BroadcastTarget {
+  note?: string
+  platform: string
+  selfId?: string
+  channelId: string
+  enabled: boolean
+}
+
 export interface Config {
   dataSources: string[]
   proxyMode: 'none' | 'custom' | 'ghproxy'
   customProxyUrl: string
   ghProxyPrefix: string
+  enableQuote: boolean
   defaultTop: number
   showCover: boolean
-  enableQuote: boolean
   enableBroadcast: boolean
-  broadcastChannels: string[]
+  broadcastTargets: BroadcastTarget[]
   checkInterval: number
 }
 
@@ -55,9 +63,16 @@ export const Config: Schema<Config> = Schema.intersect([
     enableBroadcast: Schema.boolean()
       .default(false)
       .description('🔔 是否启用每周新榜自动广播提醒'),
-    broadcastChannels: Schema.array(Schema.string())
+    broadcastTargets: Schema.array(Schema.object({
+      note: Schema.string().default('').description('📝 备注'),
+      platform: Schema.string().default('onebot').description('🎯 平台 (如 onebot, qq, discord)'),
+      selfId: Schema.string().default('').description('🤖 Bot ID (可选，留空则匹配该平台任意 Bot)'),
+      channelId: Schema.string().default('').description('📡 目标频道/群组 ID'),
+      enabled: Schema.boolean().default(true).description('✅ 是否启用'),
+    }))
+      .role('table')
       .default([])
-      .description('🎯 接收新榜推送广播的目标频道 ID 列表 (格式: platform:channelId)'),
+      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号及是否启用等）'),
     checkInterval: Schema.number()
       .default(15)
       .min(1)

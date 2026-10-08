@@ -49,7 +49,7 @@
 - **默认展示数量 (`defaultTop`)**：默认 10，最大 20
 - **附带封面海报 (`showCover`)**：默认 `true`
 - **启用新榜广播 (`enableBroadcast`)**：默认 `false`
-- **订阅频道列表 (`broadcastChannels`)**：广播目标平台与频道，例如 `onebot:12345678`
+- **广播目标表格 (`broadcastTargets`)**：可视化表格配置推送目标（包含备注、platform、selfId、channelId 及独立启用开关）
 - **轮询检测周期 (`checkInterval`)**：默认每 15 分钟检测一次
 
 ---
