@@ -8,15 +8,17 @@ export function registerSearchCommand(ctx: Context, config: Config, service: Bil
     .alias('周榜搜歌', 'bb.search')
     .action(async ({ session }, keyword) => {
       if (!keyword || !keyword.trim()) {
-        return '请输入要搜索的歌曲名称关键词，例如「周榜.查歌 敌人」'
+        await sendReply(session, config, '请输入要搜索的歌曲名称关键词，例如「周榜.查歌 敌人」')
+        return
       }
 
       try {
-        await session?.send(`🔍 正在检索近 20 期周榜数据中...`)
+        await sendReply(session, config, `🔍 正在检索近 20 期周榜数据中...`)
         const result = await service.searchSong(keyword.trim())
 
         if (result.records.length === 0) {
-          return `未在最近收录的周榜中检索到包含「${keyword}」的曲目。`
+          await sendReply(session, config, `未在最近收录的周榜中检索到包含「${keyword}」的曲目。`)
+          return
         }
 
         const lines = [
@@ -38,7 +40,7 @@ export function registerSearchCommand(ctx: Context, config: Config, service: Bil
 
         await sendReply(session, config, lines.join('\n'))
       } catch (err: any) {
-        await session?.send(`❌ 搜索失败: ${err.message || err}`)
+        await sendReply(session, config, `❌ 搜索失败: ${err.message || err}`)
       }
     })
 }

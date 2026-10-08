@@ -11,7 +11,7 @@ export function registerReloadCommand(ctx: Context, config: Config, service: Bil
         const index = await service.getIndex(true)
         await sendReply(session, config, `✅ 周榜索引已强制刷新成功！当前最新: 第 ${index.latest_issue} 期。`)
       } catch (err: any) {
-        await session?.send(`❌ 刷新失败: ${err.message || err}`)
+        await sendReply(session, config, `❌ 刷新失败: ${err.message || err}`)
       }
     })
 }

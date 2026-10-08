@@ -11,8 +11,10 @@ export class BillboardService {
 
   private resolveUrl(rawUrl: string): string {
     if (this.config.proxyMode === 'ghproxy' && this.config.ghProxyPrefix) {
-      const prefix = this.config.ghProxyPrefix.replace(/\/+$/, '')
-      return `${prefix}/${rawUrl}`
+      if (/^https?:\/\/(raw\.githubusercontent\.com|github\.com|gist\.githubusercontent\.com)/i.test(rawUrl)) {
+        const prefix = this.config.ghProxyPrefix.replace(/\/+$/, '')
+        return `${prefix}/${rawUrl}`
+      }
     }
     return rawUrl
   }

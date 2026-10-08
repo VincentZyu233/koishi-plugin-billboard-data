@@ -26,7 +26,7 @@ export function registerHistoryCommand(ctx: Context, config: Config, service: Bi
 
         await sendReply(session, config, lines.join('\n'))
       } catch (err: any) {
-        await session?.send(`❌ 获取周榜历史失败: ${err.message || err}`)
+        await sendReply(session, config, `❌ 获取周榜历史失败: ${err.message || err}`)
       }
     })
 }

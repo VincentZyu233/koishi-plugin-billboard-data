@@ -28,7 +28,7 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
         await sendReply(session, config, reply)
       } catch (err: any) {
         logger.error(err)
-        await session?.send(`❌ 获取周榜数据失败: ${err.message || err}`)
+        await sendReply(session, config, `❌ 获取周榜数据失败: ${err.message || err}`)
       }
     })
 }

@@ -38,13 +38,14 @@ export function formatWeeklyMessage(detail: WeeklyDetail, limit: number, showCov
 }
 
 export async function sendReply(session: any, config: Config, reply: any) {
-  if (config.enableQuote && session?.messageId) {
+  if (!session) return
+  if (config.enableQuote && session.messageId) {
     if (Array.isArray(reply)) {
-      await session.send([h.quote(session.messageId), ...reply])
+      return await session.send([h.quote(session.messageId), ...reply])
     } else {
-      await session.send(`${h.quote(session.messageId)}${reply}`)
+      return await session.send([h.quote(session.messageId), typeof reply === 'string' ? h.text(reply) : reply])
     }
   } else {
-    await session.send(reply)
+    return await session.send(reply)
   }
 }
