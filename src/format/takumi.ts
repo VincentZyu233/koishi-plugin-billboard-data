@@ -5,7 +5,7 @@ import { container, text, image, type Node } from '@takumi-rs/helpers'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import type { WeeklyDetail, SongItem } from '../types'
+import type { WeeklyDetail } from '../types'
 import { ensureLxgwFont } from '../utils/font'
 
 const nodeRequire = createRequire(
@@ -14,6 +14,10 @@ const nodeRequire = createRequire(
 const takumiModule: typeof import('@takumi-rs/wasm/node') = nodeRequire('@takumi-rs/wasm/node')
 
 const WIDTH = 920
+const PADDING = 24
+const CONTENT_WIDTH = WIDTH - PADDING * 2 // 872
+const CARD_PADDING = 20
+const INNER_WIDTH = CONTENT_WIDTH - CARD_PADDING * 2 // 832
 
 // B 站经典粉蓝配色看板调色盘
 const palette = {
@@ -22,7 +26,7 @@ const palette = {
   biliPinkLight: '#FFF0F5',
   biliBlueLight: '#E8F7FD',
   gold: '#E5A93C',
-  silver: '#8A9BA8',
+  silver: '#7A8B99',
   bronze: '#C27C51',
   bg: '#F4F5F7',
   cardBg: '#FFFFFF',
@@ -74,6 +78,17 @@ async function fetchImageBuffer(ctx: Context, url?: string): Promise<Uint8Array 
   }
 }
 
+function calculateCoverHeight(buffer: Uint8Array): number {
+  try {
+    const imageSize = nodeRequire('image-size')
+    const dim = imageSize(buffer)
+    if (dim && dim.width && dim.height) {
+      return Math.min(460, Math.round((INNER_WIDTH * dim.height) / dim.width))
+    }
+  } catch {}
+  return 380
+}
+
 export async function renderWeeklyTakumi(
   ctx: Context,
   config: Config,
@@ -81,7 +96,6 @@ export async function renderWeeklyTakumi(
   limit: number,
   showCover: boolean
 ) {
-  const logger = ctx.logger('billboard')
   const fontBuffer = await loadFontBuffer(ctx, config)
   const renderer = new takumiModule.Renderer(fontBuffer ? { fonts: [fontBuffer] } : {})
 
@@ -94,16 +108,16 @@ export async function renderWeeklyTakumi(
 
   const rootChildren: Node[] = []
 
-  // 1. 顶部 Header (B站粉蓝标题条)
+  // 1. 顶部 Header
   rootChildren.push(
     container({
       style: {
+        width: CONTENT_WIDTH,
         backgroundColor: palette.cardBg,
         borderRadius: 16,
-        padding: 24,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: palette.border,
+        padding: '20px 24px',
+        marginBottom: 14,
+        border: `1px solid ${palette.border}`,
         display: 'flex',
         flexDirection: 'column',
       },
@@ -117,7 +131,7 @@ export async function renderWeeklyTakumi(
             marginBottom: 8,
           },
           children: [
-            text('🎵 Bili Board 术力口周榜', {
+            text('Bili Board 术力口周榜', {
               fontSize: 28,
               fontWeight: 700,
               color: palette.biliBlue,
@@ -138,29 +152,19 @@ export async function renderWeeklyTakumi(
             }),
           ],
         }),
-        container({
-          style: {
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          },
-          children: [
-            text(`📅 发布日期: ${detail.date || '近期'} · 第 ${detail.week || ''} 周`, {
-              fontSize: 14,
-              color: palette.textSub,
-            }),
-          ],
+        text(`发布日期: ${detail.date || '近期'} · 第 ${detail.week || ''} 周`, {
+          fontSize: 14,
+          color: palette.textSub,
         }),
       ],
     })
   )
 
-  // 2. TOP 1 大卡片特写
+  // 2. TOP 1 大卡片特写（完整包裹，无任何多余空白）
   if (items.length > 0) {
     const top1 = items[0]
     const top1Inner: Node[] = []
 
-    // 头部信息
     top1Inner.push(
       container({
         style: {
@@ -178,8 +182,8 @@ export async function renderWeeklyTakumi(
               padding: '4px 10px',
             },
             children: [
-              text('🥇 TOP 1 冠军曲目', {
-                fontSize: 15,
+              text('TOP 1 冠军', {
+                fontSize: 14,
                 fontWeight: 700,
                 color: '#FFFFFF',
               }),
@@ -203,19 +207,30 @@ export async function renderWeeklyTakumi(
       })
     )
 
-    // 如果下载到了第一名海报封面，展示高清封面
     if (top1CoverBuffer) {
+      const coverHeight = calculateCoverHeight(top1CoverBuffer)
       top1Inner.push(
-        image({
-          src: top1CoverBuffer,
-          width: 872,
-          height: 380,
+        container({
           style: {
-            width: 872,
-            height: 380,
+            width: INNER_WIDTH,
+            height: coverHeight,
             borderRadius: 12,
-            objectFit: 'cover',
+            overflow: 'hidden',
+            display: 'flex',
           },
+          children: [
+            image({
+              src: top1CoverBuffer,
+              width: INNER_WIDTH,
+              height: coverHeight,
+              style: {
+                width: INNER_WIDTH,
+                height: coverHeight,
+                borderRadius: 12,
+                objectFit: 'cover',
+              },
+            }),
+          ],
         })
       )
     }
@@ -223,45 +238,46 @@ export async function renderWeeklyTakumi(
     rootChildren.push(
       container({
         style: {
+          width: CONTENT_WIDTH,
           backgroundColor: palette.cardBg,
           borderRadius: 16,
-          padding: 20,
-          marginBottom: 16,
-          borderWidth: 2,
-          borderColor: '#FCE7C8',
+          padding: CARD_PADDING,
+          marginBottom: 14,
+          border: '2px solid #FCE7C8',
+          display: 'flex',
+          flexDirection: 'column',
         },
         children: top1Inner,
       })
     )
   }
 
-  // 3. TOP 2 ~ N 排行榜单项
-  const listItems: Node[] = []
+  // 3. TOP 2 ~ N 排行榜单项（紧凑无缝平铺）
   for (let i = 1; i < items.length; i++) {
     const item = items[i]
     let badgeColor = palette.biliBlueLight
     let badgeTextColor = palette.biliBlue
-    let rankText = `【TOP ${item.rank}】`
+    let rankText = `TOP ${item.rank}`
 
     if (item.rank === 2) {
       badgeColor = '#EEF2F6'
       badgeTextColor = palette.silver
-      rankText = '🥈 TOP 2'
+      rankText = 'TOP 2'
     } else if (item.rank === 3) {
       badgeColor = '#FDF0E9'
       badgeTextColor = palette.bronze
-      rankText = '🥉 TOP 3'
+      rankText = 'TOP 3'
     }
 
-    listItems.push(
+    rootChildren.push(
       container({
         style: {
+          width: CONTENT_WIDTH,
           backgroundColor: palette.cardBg,
           borderRadius: 10,
-          padding: '12px 16px',
+          padding: '10px 16px',
           marginBottom: 8,
-          borderWidth: 1,
-          borderColor: palette.border,
+          border: `1px solid ${palette.border}`,
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
@@ -308,31 +324,19 @@ export async function renderWeeklyTakumi(
     )
   }
 
-  if (listItems.length > 0) {
-    rootChildren.push(
-      container({
-        style: {
-          display: 'flex',
-          flexDirection: 'column',
-          marginBottom: 12,
-        },
-        children: listItems,
-      })
-    )
-  }
-
   // 4. 底栏 Footer
   rootChildren.push(
     container({
       style: {
+        width: CONTENT_WIDTH,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '8px 12px 0 12px',
+        padding: '10px 4px 4px 4px',
       },
       children: [
-        text('💡 数据来源于 Bilibili @Bili Board Atel 周榜公开专栏', {
+        text('数据来源于 Bilibili @Bili Board Atel 周榜公开专栏', {
           fontSize: 12,
           color: palette.textMuted,
         }),
@@ -344,12 +348,11 @@ export async function renderWeeklyTakumi(
     })
   )
 
-  // 根节点
   const root = container({
     style: {
       width: WIDTH,
       backgroundColor: palette.bg,
-      padding: 24,
+      padding: PADDING,
       display: 'flex',
       flexDirection: 'column',
     },
