@@ -84,8 +84,8 @@ export const usage = `
 
   <blockquote style="margin: 14px 0; padding: 10px 14px; border-left: 5px solid #00AEEC; border-radius: 6px; background: rgba(0, 174, 236, 0.08); line-height: 1.6;">
     <b style="color: #00AEEC;">💡 双源数据体系与致谢：</b><br>
-    • <b>Bilibili 周榜：</b>来源于 B 站 <b>@Bili Board Atel</b> 周榜公开专栏。<br>
-    • <b>Niconico 周榜：</b>来源于日本 Billboard JAPAN 与 ニコニコ 官方合作出品、B 站 <b>@秋叶-风</b> 专栏同步归档的《ニコニコ VOCALOID SONGS TOP20》。<br>
+    • <b>Bilibili 周榜：</b>来源于 B 站 <b>@Bili-Board_Atel</b> 周榜公开专栏。<br>
+    • <b>Niconico 周榜：</b>来源于日本 Billboard JAPAN 与 ニコニコ 官方合作出品、B 站 <b>@Elvansphere</b> 专栏同步归档的《ニコニコ VOCALOID SONGS TOP20》。<br>
     所有数据通过 GitHub 仓库 
     <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">VincentZyuApps/billboard-data</a> 定时自动化归档。
   </blockquote>
