@@ -9,14 +9,32 @@ export class BillboardService {
 
   constructor(private ctx: Context, private config: Config) {}
 
+  private resolveUrl(rawUrl: string): string {
+    if (this.config.proxyMode === 'ghproxy' && this.config.ghProxyPrefix) {
+      const prefix = this.config.ghProxyPrefix.replace(/\/+$/, '')
+      return `${prefix}/${rawUrl}`
+    }
+    return rawUrl
+  }
+
+  private getRequestOptions(timeout: number) {
+    const options: any = { timeout }
+    if (this.config.proxyMode === 'custom' && this.config.customProxyUrl) {
+      options.proxy = this.config.customProxyUrl.trim()
+    }
+    return options
+  }
+
   private async fetchWithFallback<T>(path: string): Promise<T> {
-    const primaryUrl = `${this.config.dataSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+    const rawPrimary = `${this.config.dataSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+    const primaryUrl = this.resolveUrl(rawPrimary)
     try {
-      return await this.ctx.http.get<T>(primaryUrl, { timeout: 8000 })
+      return await this.ctx.http.get<T>(primaryUrl, this.getRequestOptions(8000))
     } catch (primaryErr) {
       this.ctx.logger('billboard').warn(`主源请求失败 (${primaryUrl}): ${primaryErr}，尝试备用源...`)
-      const fallbackUrl = `${this.config.fallbackSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-      return await this.ctx.http.get<T>(fallbackUrl, { timeout: 10000 })
+      const rawFallback = `${this.config.fallbackSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+      const fallbackUrl = this.resolveUrl(rawFallback)
+      return await this.ctx.http.get<T>(fallbackUrl, this.getRequestOptions(10000))
     }
   }
 
