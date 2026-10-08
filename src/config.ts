@@ -19,8 +19,10 @@ export interface Config {
   outputFormats: OutputFormat[]
   takumiFontMode: TakumiFontMode
   takumiCustomFontPath: string
+  takumiShowAllCovers: boolean
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
+  puppeteerShowAllCovers: boolean
   enableQuote: boolean
   defaultTop: number
   showCover: boolean
@@ -61,6 +63,9 @@ export const Config: Schema<Config> = Schema.intersect([
       .role('checkbox')
       .default(['text', 'takumi', 'puppeteer', 'qq_markdown'])
       .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）'),
+  }).description('📤 消息输出格式'),
+
+  Schema.object({
     takumiFontMode: Schema.union([
       Schema.const('release' as TakumiFontMode).description('📥 Gitee / GitHub Release 下载（推荐，保存至 data/fonts）'),
       Schema.const('custom' as TakumiFontMode).description('📁 本地自定义字体路径'),
@@ -72,6 +77,12 @@ export const Config: Schema<Config> = Schema.intersect([
     takumiCustomFontPath: Schema.string()
       .default('')
       .description('📁 Takumi 自定义字体文件路径（选为「本地自定义字体路径」时生效）'),
+    takumiShowAllCovers: Schema.boolean()
+      .default(true)
+      .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图）'),
+  }).description('⚡ Takumi WASM 渲染设置'),
+
+  Schema.object({
     puppeteerFontMode: Schema.union([
       Schema.const('npm' as PuppeteerFontMode).description('📦 npm 字体包（推荐，即装即用 lxgw-wenkai-webfont）'),
       Schema.const('release' as PuppeteerFontMode).description('📥 Gitee / GitHub Release 下载字体（复用 data/fonts）'),
@@ -84,7 +95,10 @@ export const Config: Schema<Config> = Schema.intersect([
     puppeteerCustomFontPath: Schema.string()
       .default('')
       .description('📁 Puppeteer 自定义字体文件路径（选为「本地自定义字体路径」时生效）'),
-  }).description('🖼️ 渲染与输出格式'),
+    puppeteerShowAllCovers: Schema.boolean()
+      .default(true)
+      .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带高保真缩略图）'),
+  }).description('🎨 Puppeteer 网页出图设置'),
 
   Schema.object({
     enableQuote: Schema.boolean()

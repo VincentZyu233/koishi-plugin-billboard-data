@@ -286,6 +286,22 @@ export async function renderWeeklyPuppeteer(
     .tag-bronze { background: #FDF0E9; color: #B35824; }
     .tag-normal { background: #E8F7FD; color: #00AEEC; }
 
+    .song-thumb {
+      width: 64px;
+      height: 38px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .song-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .song-title {
       font-size: 16px;
       font-weight: 700;
@@ -370,10 +386,14 @@ export async function renderWeeklyPuppeteer(
         tagText = '🥉 TOP 3'
       }
 
+      const showThumb = config.puppeteerShowAllCovers && showCover && item.pic_url
+      const thumbHtml = showThumb ? `<div class="song-thumb"><img src="${item.pic_url}" alt="thumb" /></div>` : ''
+
       return `
       <div class="rank-row ${rowClass}">
         <div class="rank-left">
           <span class="rank-tag ${tagClass}">${tagText}</span>
+          ${thumbHtml}
           <span class="song-title">${item.title}</span>
         </div>
         ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
