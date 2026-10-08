@@ -97,7 +97,7 @@ export const Config: Schema<Config> = Schema.intersect([
     customProxyUrl: Schema.string()
       .default('http://127.0.0.1:7890')
       .description('🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用；将在公网代理失败或非 GitHub 地址时尝试通过该代理访问）'),
-  }).description('🛡️ 网络代理配置（请求时将依次自动尝试：gh-proxy 镜像加速 -> 自定义本地代理 -> 直连）'),
+  }).description('🛡️ 网络代理配置【请求时将依次自动尝试：gh-proxy 镜像加速(如果是github的url) -> 自定义本地代理 -> 直连】'),
 
   Schema.object({
     outputFormats: Schema.array(
