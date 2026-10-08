@@ -24,6 +24,7 @@ export interface Config {
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     dataSources: Schema.array(Schema.string())
+      .role('table')
       .default([
         'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
         'https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data',
@@ -72,7 +73,7 @@ export const Config: Schema<Config> = Schema.intersect([
     }))
       .role('table')
       .default([{
-        note: '默认群聊',
+        note: 'awa测试群',
         platform: 'onebot',
         selfId: '',
         channelId: '958366323',
