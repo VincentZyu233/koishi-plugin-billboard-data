@@ -88,6 +88,7 @@
 | `takumiShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图） |
 | `takumiDetailedMode` | `"standard" \| "simple"` | `"standard"` | 📋 Takumi 出图信息详细度模式（`standard` 包含原视频标题与全量指标；`simple` 极简看板） |
 | `takumiShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Takumi WASM 渲染及总耗时 |
+| `takumiScale` | `number` | `1.5` | 🔍 Takumi WASM 渲染缩放倍率 / 设备像素比 (devicePixelRatio)，默认 1.5 倍高清输出 |
 
 ### 🎨 Puppeteer 网页出图设置
 
@@ -98,6 +99,7 @@
 | `puppeteerShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带精美缩略图） |
 | `puppeteerDetailedMode` | `"standard" \| "simple"` | `"standard"` | 📋 Puppeteer 出图详细度模式（`standard` 展示原视频标题与六维指标；`simple` 隐藏指标） |
 | `puppeteerShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Puppeteer 渲染及总耗时 |
+| `puppeteerScale` | `number` | `1.0` | 🔍 Puppeteer 网页出图缩放倍率 / 设备像素比 (deviceScaleFactor)，默认保持 1.0 不变 |
 
 ### 📊 QQ 原生 Markdown 设置
 

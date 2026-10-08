@@ -34,12 +34,14 @@ export interface Config {
   takumiShowAllCovers: boolean
   takumiDetailedMode: TakumiDetailedMode
   takumiShowRenderInfo: boolean
+  takumiScale: number
   // Puppeteer 网页出图设置
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
   puppeteerShowAllCovers: boolean
   puppeteerDetailedMode: PuppeteerDetailedMode
   puppeteerShowRenderInfo: boolean
+  puppeteerScale: number
   // QQ 原生 Markdown 设置
   qqMarkdownDetailedMode: QQMarkdownDetailedMode
   qqMarkdownShowRenderInfo: boolean
@@ -138,6 +140,13 @@ export const Config: Schema<Config> = Schema.intersect([
     takumiShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在出图水印处展示 API 请求耗时、尝试源数量与 WASM 渲染耗时'),
+    takumiScale: Schema.number()
+      .role('slider')
+      .min(1)
+      .max(3)
+      .step(0.1)
+      .default(1.5)
+      .description('🔍 Takumi WASM 渲染缩放倍率 / 设备像素比 (devicePixelRatio)。默认 1.5 倍高清输出，数值越高越清晰细腻，但图片体积与渲染开销会略微增加。'),
   }).description('⚡ Takumi WASM 渲染设置'),
 
   Schema.object({
@@ -166,6 +175,13 @@ export const Config: Schema<Config> = Schema.intersect([
     puppeteerShowRenderInfo: Schema.boolean()
       .default(true)
       .description('⏱️ 是否在网页底栏展示 API 请求耗时、尝试源数量与浏览器渲染耗时'),
+    puppeteerScale: Schema.number()
+      .role('slider')
+      .min(1)
+      .max(3)
+      .step(0.1)
+      .default(1.0)
+      .description('🔍 Puppeteer 网页出图缩放倍率 / 设备像素比 (deviceScaleFactor)。默认保持 1.0 原生倍率不变。'),
   }).description('🎨 Puppeteer 网页出图设置'),
 
   Schema.object({

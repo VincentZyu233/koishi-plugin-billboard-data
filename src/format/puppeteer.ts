@@ -680,6 +680,10 @@ export async function renderWeeklyPuppeteer(
 
   try {
     const page = await ctx.puppeteer.page()
+    const dsf = config.puppeteerScale || 1.0
+    if (dsf !== 1.0) {
+      await page.setViewport({ width: 840, height: 1000, deviceScaleFactor: dsf })
+    }
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 20000 })
     const bodyHandle = await page.$('body')
     const renderStartTime = Date.now()

@@ -65,7 +65,7 @@ export function formatWeeklyText(
   const textPart = lines.join('\n')
 
   if (showCover && items.length > 0 && items[0].pic_url) {
-    return [h.text(textPart), h.image(items[0].pic_url)]
+    return [h.image(items[0].pic_url), h.text(textPart)]
   }
 
   return textPart

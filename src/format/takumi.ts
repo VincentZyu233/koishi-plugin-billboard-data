@@ -781,13 +781,18 @@ export async function renderWeeklyTakumi(
   })
 
   const renderStartTime = Date.now()
-  const imageBuffer = await renderer.render(root, { width: WIDTH, format: 'png' })
+  const dpr = config.takumiScale || 1.5
+  const imageBuffer = await renderer.render(root, {
+    width: WIDTH,
+    format: 'png',
+    devicePixelRatio: dpr,
+  })
   const renderMs = Date.now() - renderStartTime
 
   const imageElement = h.image(imageBuffer, 'image/png')
   if (config.takumiShowRenderInfo && stats) {
     const totalMs = Date.now() - stats.commandStartTime
-    const infoText = `\n====================\n⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | ⚡ Takumi 渲染: ${renderMs}ms | 📊 总耗时: ${totalMs}ms`
+    const infoText = `\n====================\n⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | ⚡ Takumi 渲染: ${renderMs}ms (×${dpr}) | 📊 总耗时: ${totalMs}ms`
     return [imageElement, h.text(infoText)]
   }
 
