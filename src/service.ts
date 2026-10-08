@@ -26,16 +26,23 @@ export class BillboardService {
   }
 
   private async fetchWithFallback<T>(path: string): Promise<T> {
-    const rawPrimary = `${this.config.dataSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-    const primaryUrl = this.resolveUrl(rawPrimary)
-    try {
-      return await this.ctx.http.get<T>(primaryUrl, this.getRequestOptions(8000))
-    } catch (primaryErr) {
-      this.ctx.logger('billboard').warn(`主源请求失败 (${primaryUrl}): ${primaryErr}，尝试备用源...`)
-      const rawFallback = `${this.config.fallbackSource.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-      const fallbackUrl = this.resolveUrl(rawFallback)
-      return await this.ctx.http.get<T>(fallbackUrl, this.getRequestOptions(10000))
+    const sources = this.config.dataSources && this.config.dataSources.length > 0
+      ? this.config.dataSources
+      : ['https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data']
+
+    let lastErr: any = null
+    for (let i = 0; i < sources.length; i++) {
+      const base = sources[i].replace(/\/+$/, '')
+      const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
+      const url = this.resolveUrl(rawUrl)
+      try {
+        return await this.ctx.http.get<T>(url, this.getRequestOptions(8000))
+      } catch (err) {
+        lastErr = err
+        this.ctx.logger('billboard').warn(`数据源 [${i + 1}/${sources.length}] 请求失败 (${url}): ${err}`)
+      }
     }
+    throw new Error(`所有配置的数据源均请求失败: ${lastErr?.message || lastErr}`)
   }
 
   async getIndex(force = false): Promise<IndexData> {

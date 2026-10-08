@@ -38,8 +38,7 @@
 
 在 Koishi 控制台中可直接进行图形化配置：
 
-- **主数据源 (`dataSource`)**：默认 `https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data`
-- **备用数据源 (`fallbackSource`)**：默认 `https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data`
+- **数据源列表 (`dataSources`)**：默认包含 jsDelivr CDN 与 GitHub Raw（按顺序从前往后依次尝试）
 - **网络代理模式 (`proxyMode`)**：
   - `none`：不走代理（直连访问）
   - `custom`：走指定代理 URL（支持 HTTP/HTTPS/SOCKS5）

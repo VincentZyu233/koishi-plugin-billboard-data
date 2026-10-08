@@ -1,8 +1,7 @@
 import { Schema } from 'koishi'
 
 export interface Config {
-  dataSource: string
-  fallbackSource: string
+  dataSources: string[]
   proxyMode: 'none' | 'custom' | 'ghproxy'
   customProxyUrl: string
   ghProxyPrefix: string
@@ -16,12 +15,12 @@ export interface Config {
 
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
-    dataSource: Schema.string()
-      .default('https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data')
-      .description('主数据源基础路径（推荐使用 jsDelivr CDN）'),
-    fallbackSource: Schema.string()
-      .default('https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data')
-      .description('备用数据源基础路径（主源请求失败时尝试）'),
+    dataSources: Schema.array(Schema.string())
+      .default([
+        'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
+        'https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data',
+      ])
+      .description('数据源列表（按顺序从前往后依次尝试请求）'),
   }).description('数据源设置'),
 
   Schema.object({
