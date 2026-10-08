@@ -1,10 +1,11 @@
-import { Schema } from 'koishi'
+export type BillboardSource = 'bilibili' | 'niconico'
 
 export interface BroadcastTarget {
   note?: string
   platform: string
   selfId?: string
   channelId: string
+  sources: BillboardSource[]
   enabled: boolean
 }
 
@@ -20,6 +21,7 @@ export interface Config {
   // 消息交互设置
   enableQuote: boolean
   enableWaitingHint: boolean
+  defaultSource: BillboardSource
   dataSources: string[]
   autoPurgeJsdelivr: boolean
   ghProxyPrefix: string
@@ -53,6 +55,8 @@ export interface Config {
   checkInterval: number
 }
 
+import { Schema } from 'koishi'
+
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     enableQuote: Schema.boolean()
@@ -61,6 +65,13 @@ export const Config: Schema<Config> = Schema.intersect([
     enableWaitingHint: Schema.boolean()
       .default(true)
       .description('⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后将自动撤回）'),
+    defaultSource: Schema.union([
+      Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜 (B站本地榜单)'),
+      Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20 (日本N站榜单)'),
+    ])
+      .role('radio')
+      .default('bilibili')
+      .description('🎯 默认周榜数据源（当指令未显式使用 -s 指定时生效）'),
   }).description('💬 消息交互设置'),
 
   Schema.object({
@@ -217,6 +228,13 @@ export const Config: Schema<Config> = Schema.intersect([
       platform: Schema.string().default('onebot').description('🎯 平台 (如 onebot, qq, discord)'),
       selfId: Schema.string().default('').description('🤖 Bot ID (可选，留空则匹配该平台任意 Bot)'),
       channelId: Schema.string().default('').description('📡 目标频道/群组 ID'),
+      sources: Schema.array(Schema.union([
+        Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜'),
+        Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20'),
+      ]))
+        .role('checkbox')
+        .default(['bilibili', 'niconico'])
+        .description('📡 广播推送的数据源范围（支持多选，默认两者均推送）'),
       enabled: Schema.boolean().default(true).description('✅ 是否启用'),
     }))
       .role('table')
@@ -225,9 +243,10 @@ export const Config: Schema<Config> = Schema.intersect([
         platform: 'onebot',
         selfId: '',
         channelId: '958366323',
+        sources: ['bilibili', 'niconico'],
         enabled: true,
       }])
-      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号及是否启用等；selfId 留空将向该平台所有满足条件的 Bot 发送）'),
+      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号、推送源范围及是否启用等；selfId 留空将向该平台所有满足条件的 Bot 发送）'),
     checkInterval: Schema.number()
       .default(15)
       .min(1)

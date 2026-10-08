@@ -194,6 +194,9 @@ export async function renderWeeklyTakumi(
   const top1CoverBuffer = itemCovers[0] || null
   const rootChildren: Node[] = []
 
+  const isNico = detail.source === 'niconico' || detail.title.includes('ニコニコ')
+  const chartTitle = isNico ? 'ニコニコ VOCALOID TOP20' : 'Bili Board 术力口周榜'
+
   // 1. 顶部 Header
   rootChildren.push(
     container({
@@ -217,7 +220,7 @@ export async function renderWeeklyTakumi(
             marginBottom: 4,
           },
           children: [
-            text('Bili Board 术力口周榜', {
+            text(chartTitle, {
               fontSize: 24,
               fontWeight: 600,
               color: palette.biliBlue,

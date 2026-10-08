@@ -1,18 +1,20 @@
 import { Context } from 'koishi'
-import type { Config } from './config'
+import type { Config, BillboardSource } from './config'
 import type { IndexData, WeeklyDetail, IssueMeta } from './types'
 
 export class BillboardService {
-  private indexCache: IndexData | null = null
-  private indexCacheTime = 0
-  private detailCache = new Map<number, WeeklyDetail>()
+  private indexCaches = new Map<BillboardSource, { data: IndexData; time: number }>()
+  private detailCaches = new Map<BillboardSource, Map<number, WeeklyDetail>>()
 
   private purgedUrls = new Set<string>()
 
   public lastApiDurationMs = 0
   public lastAttemptSourcesCount = 1
 
-  constructor(private ctx: Context, private config: Config) {}
+  constructor(private ctx: Context, private config: Config) {
+    this.detailCaches.set('bilibili', new Map())
+    this.detailCaches.set('niconico', new Map())
+  }
 
   private isGitHubUrl(url: string): boolean {
     return /^https?:\/\/(raw\.githubusercontent\.com|github\.com|gist\.githubusercontent\.com)/i.test(url)
@@ -55,13 +57,10 @@ export class BillboardService {
       const base = sources[sIdx].replace(/\/+$/, '')
       const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
 
-      // 若启用且为 jsDelivr URL，先尝试触发 purge 刷新
       await this.purgeJsdelivr(rawUrl)
 
-      // 构建针对当前 URL 的候选请求方案列表（依次尝试：gh-proxy -> 自定义代理 -> 直连）
       const attempts: { desc: string; url: string; options: { timeout: number; proxy?: string } }[] = []
 
-      // 1. 公网 GitHub 加速代理（若填写且为 GitHub 域名）
       if (this.config.ghProxyPrefix?.trim() && this.isGitHubUrl(rawUrl)) {
         const prefix = this.config.ghProxyPrefix.trim().replace(/\/+$/, '')
         attempts.push({
@@ -71,7 +70,6 @@ export class BillboardService {
         })
       }
 
-      // 2. 自定义本地代理（若填写）
       if (this.config.customProxyUrl?.trim()) {
         attempts.push({
           desc: '自定义本地代理',
@@ -80,14 +78,12 @@ export class BillboardService {
         })
       }
 
-      // 3. 直连访问（无代理）
       attempts.push({
         desc: '直连访问',
         url: rawUrl,
         options: { timeout: 8000 },
       })
 
-      // 依次尝试该源的候选方案
       for (const attempt of attempts) {
         try {
           const res = await this.ctx.http.get<T>(attempt.url, attempt.options)
@@ -107,67 +103,83 @@ export class BillboardService {
   }
 
   clearCache() {
-    this.indexCache = null
-    this.indexCacheTime = 0
-    this.detailCache.clear()
+    this.indexCaches.clear()
+    this.detailCaches.get('bilibili')?.clear()
+    this.detailCaches.get('niconico')?.clear()
     this.purgedUrls.clear()
   }
 
-  async getIndex(force = false): Promise<IndexData> {
+  async getIndex(source: BillboardSource, force = false): Promise<IndexData> {
     const now = Date.now()
-    // 缓存 10 分钟 (600,000 ms)
-    if (!force && this.indexCache && now - this.indexCacheTime < 600000) {
-      return this.indexCache
+    const cached = this.indexCaches.get(source)
+    if (!force && cached && now - cached.time < 600000) {
+      return cached.data
     }
 
-    const data = await this.fetchWithFallback<IndexData>('index.json')
-    this.indexCache = data
-    this.indexCacheTime = now
+    const data = await this.fetchWithFallback<IndexData>(`${source}/index.json`)
+    data.source = source
+    this.indexCaches.set(source, { data, time: now })
     return data
   }
 
-  async getWeekly(issue: number, force = false): Promise<WeeklyDetail> {
-    if (!force && this.detailCache.has(issue)) {
+  async getWeekly(source: BillboardSource, issue: number, force = false): Promise<WeeklyDetail> {
+    const sourceCache = this.detailCaches.get(source) || new Map<number, WeeklyDetail>()
+    if (!force && sourceCache.has(issue)) {
       this.lastApiDurationMs = 0
       this.lastAttemptSourcesCount = 1
-      return this.detailCache.get(issue)!
+      return sourceCache.get(issue)!
     }
 
-    const data = await this.fetchWithFallback<WeeklyDetail>(`weekly/${issue}.json`)
-    this.detailCache.set(issue, data)
+    const index = await this.getIndex(source, force)
+    const issueMeta = index.issues.find(it => it.issue === issue)
+    if (!issueMeta) {
+      throw new Error(`未在 ${source} 数据源中找到第 ${issue} 期周榜数据`)
+    }
+
+    const relativePath = issueMeta.path.replace(/^\/+/, '')
+    const fullPath = `${source}/${relativePath}`
+
+    const data = await this.fetchWithFallback<WeeklyDetail>(fullPath)
+    data.source = source
+    sourceCache.set(issue, data)
+    this.detailCaches.set(source, sourceCache)
     return data
   }
 
-  async getLatest(): Promise<{ meta: IssueMeta; detail: WeeklyDetail }> {
-    const index = await this.getIndex()
+  async getLatest(source: BillboardSource): Promise<{ meta: IssueMeta; detail: WeeklyDetail }> {
+    const index = await this.getIndex(source)
     if (!index.issues || index.issues.length === 0) {
-      throw new Error('未获取到任何周榜数据')
+      throw new Error(`未获取到 ${source} 的任何周榜数据`)
     }
 
     const latestMeta = index.issues[0]
-    const detail = await this.getWeekly(latestMeta.issue)
+    const detail = await this.getWeekly(source, latestMeta.issue)
     return { meta: latestMeta, detail }
   }
 
-  async searchSong(keyword: string, checkRecentCount = 20): Promise<{
+  async searchSong(source: BillboardSource, keyword: string, checkRecentCount = 20): Promise<{
+    source: BillboardSource
     songTitle: string
-    records: { issue: number; rank: number; title: string; bvid: string; url: string }[]
+    records: { issue: number; rank: number; title: string; author?: string; bvid: string; url: string }[]
   }> {
-    const index = await this.getIndex()
+    const index = await this.getIndex(source)
     const targetIssues = index.issues.slice(0, checkRecentCount)
     const lowerKw = keyword.trim().toLowerCase()
 
-    const records: { issue: number; rank: number; title: string; bvid: string; url: string }[] = []
+    const records: { issue: number; rank: number; title: string; author?: string; bvid: string; url: string }[] = []
 
     for (const meta of targetIssues) {
       try {
-        const detail = await this.getWeekly(meta.issue)
+        const detail = await this.getWeekly(source, meta.issue)
         for (const item of detail.items) {
-          if (item.title.toLowerCase().includes(lowerKw)) {
+          const titleMatches = item.title.toLowerCase().includes(lowerKw)
+          const authorMatches = item.author && item.author.toLowerCase().includes(lowerKw)
+          if (titleMatches || authorMatches) {
             records.push({
               issue: meta.issue,
               rank: item.rank,
               title: item.title,
+              author: item.author,
               bvid: item.bvid,
               url: item.url,
             })
@@ -179,6 +191,7 @@ export class BillboardService {
     }
 
     return {
+      source,
       songTitle: keyword,
       records: records.sort((a, b) => b.issue - a.issue),
     }

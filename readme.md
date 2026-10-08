@@ -14,7 +14,10 @@
 <p>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>1085190201</b> 🎉</p>
 <p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
-用于查询《Bili Board 术力口周榜》（VOCALOID / 虚拟歌手周榜）的 Koishi 插件。
+用于查询 VOCALOID / 虚拟歌手周榜（术力口周榜）的 Koishi 插件。
+同时支持：
+1. **Bili Board 术力口周榜**（B站本土术力口周榜，数据来源于 @Bili Board Atel）
+2. **ニコニコ VOCALOID SONGS TOP20**（日本 Niconico 与 Billboard JAPAN 联合官方周榜，数据同步于 @秋叶-风）
 
 数据源来自于由 GitHub Actions 自动化每周定时归档的公开数据仓库 [billboard-data](https://github.com/VincentZyuApps/billboard-data)。
 
@@ -22,11 +25,12 @@
 
 ## 🌟 功能特性
 
+- **双源合一**：B站周榜与日本N站Billboard TOP20官方周榜无缝聚合。
 - **即开即用**：零数据库配置，直接基于 jsDelivr 全球加速 CDN 读取静态 JSON。
 - **两级缓存**：内置内存与单期永久缓存，响应毫秒级，无多余网络开销。
 - **支持历史回溯**：不仅可看最新一期，还可查询任意历史期数。
-- **曲目反向检索**：支持搜索任意歌曲在近期周榜中的上榜记录与最高名次。
-- **新榜自动广播**：可选开启每周三新榜发布自动广播提醒。
+- **曲目反向检索**：支持搜索任意歌曲在近期周榜中的上榜记录与最高名次（支持 -s 切换源）。
+- **新榜自动广播**：支持多目标独立订阅 B站周榜 / N站周榜发布提醒。
 
 ---
 
@@ -34,13 +38,17 @@
 
 | 指令 | 别名 | 描述 | 示例 |
 | :--- | :--- | :--- | :--- |
-| `周榜 [期数]` | `术力口周榜`, `bb` | 查看最新或指定期数的排行榜（默认展示 TOP 10） | `周榜` / `周榜 120` / `周榜 -n 20` |
-| `周榜.历史` | `周榜历史`, `bb.history` | 查看近期收录的周榜期数总览 | `周榜.历史` |
-| `周榜.查歌 <歌名>` | `周榜搜歌`, `bb.search` | 检索某首歌曲在近期周榜中的排位战绩 | `周榜.查歌 敌人` |
+| `周榜 [期数]` | `术力口周榜`, `bb` | 查看最新或指定期数周榜（默认使用 WebUI 配置的数据源） | `bb` / `bb 120` / `bb -n 20` |
+| `周榜 -s <源> [期数]` | `bb -s <源>` | 显式指定数据源查看周榜（`bilibili`/`bili` 或 `niconico`/`nico`） | `bb -s nico` / `bb -s bili 120` |
+| `周榜b [期数]` | - | 快捷直达 B站本土周榜 | `周榜b` / `周榜b 120` |
+| `周榜n [期数]` | `nb` | 快捷直达 日本 N站 Billboard TOP20 周榜 | `周榜n` / `nb` / `nb 188` |
+| `周榜.历史` | `周榜历史`, `bb.history` | 查看近期收录的周榜期数总览（支持 `-s` 选项） | `bb.history` / `bb.history -s nico` |
+| `周榜.查歌 <歌名>` | `周榜搜歌`, `bb.search` | 检索某首歌曲在近期周榜中的排位战绩（支持 `-s` 选项） | `bb.search 敌人` / `bb.search -s nico 楽園` |
 | `周榜.刷新` | `bb.reload` | 管理员强制刷新远程索引缓存 | `周榜.刷新` |
 | `周榜.帮助` | `周榜帮助`, `bb.help` | 查看周榜指令与选项帮助（等同于 `bb -h`） | `周榜.帮助` / `bb.help` |
 
 ### 指令选项
+- `-s, --source <bilibili|niconico>`：指定周榜来源（支持简写 `bili` / `nico`）。未传时严格读取配置中的 `defaultSource`。
 - `-n <数量>`：指定展示前几名（1 ~ 20，默认 10）。
 - `-c, --cover <y/n>`：是否附带第一名封面海报大图（支持 `y`/`n`/`yes`/`no`/`t`/`f`/`true`/`false`）。
 
@@ -49,6 +57,14 @@
 ## ⚙️ 配置项说明
 
 在 Koishi 控制台中可直接进行图形化配置。
+
+### 💬 消息交互设置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableQuote` | `boolean` | `true` | 💬 是否启用引用回复 |
+| `enableWaitingHint` | `boolean` | `true` | ⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后自动撤回） |
+| `defaultSource` | `"bilibili" \| "niconico"` | `"bilibili"` | 🎯 默认周榜数据源（未传入 `-s` 参数时默认使用的榜单源） |
 
 ### 🌐 数据源设置
 
@@ -112,7 +128,6 @@
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `enableQuote` | `boolean` | `true` | 💬 是否启用引用回复 |
 | `defaultTop` | `number` | `10` | 🔢 默认展示前多少名（可在 1 ~ 20 之间调节，亦可通过 `-n` 参数覆盖） |
 | `showCover` | `boolean` | `true` | 🖼️ 查询周榜时是否附带第一名的榜单海报图片（仅纯文本模式生效） |
 
@@ -121,7 +136,7 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `enableBroadcast` | `boolean` | `false` | 🔔 是否启用每周新榜自动广播提醒 |
-| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号及启用开关） |
+| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号、源多选及启用开关） |
 | `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测周期（分钟） |
 
 #### 🎯 广播目标表格 (`broadcastTargets`) 说明
@@ -132,6 +147,7 @@
 | `platform` | `string` | 🎯 平台标识，例如 `onebot`、`qq`、`discord` |
 | `selfId` | `string` | 🤖 Bot 自身账号 ID。**留空时向该 platform 下所有满足条件的在线 Bot 发送**；填写时精确匹配 |
 | `channelId` | `string` | 📡 目标群号或频道 ID，OneBot 填真实 QQ 群号 |
+| `sources` | `string[]` | 📡 推送数据源多选（`bilibili` / `niconico`，默认全部推送） |
 | `enabled` | `boolean` | ✅ 独立启用开关，关闭后跳过该条目标 |
 
 > **默认预设项**：

@@ -10,7 +10,9 @@ export function buildWeeklyQQMarkdown(
   showRenderInfo: boolean = false
 ): string {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
-  let md = `# 🎵【Bili Board 术力口周榜】第 ${detail.issue} 期\n\n`
+  const isNico = detail.source === 'niconico' || detail.title.includes('ニコニコ')
+  const chartTitle = isNico ? 'ニコニコ VOCALOID SONGS TOP20' : 'Bili Board 术力口周榜'
+  let md = `# 🎵【${chartTitle}】第 ${detail.issue} 期\n\n`
 
   const timeStr = formatPublishTime(detail)
   const timeDesc = timeStr || detail.week ? `📅 ${timeStr} (第 ${detail.week || ''} 周) | ` : ''

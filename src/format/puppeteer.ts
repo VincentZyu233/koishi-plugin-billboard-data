@@ -119,6 +119,9 @@ export async function renderWeeklyPuppeteer(
   const top1 = items[0]
   const otherItems = items.slice(1)
 
+  const isNico = detail.source === 'niconico' || detail.title.includes('ニコニコ')
+  const chartTitle = isNico ? '🎵 ニコニコ VOCALOID SONGS TOP20' : '🎵 Bili Board 术力口周榜'
+
   const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -545,7 +548,7 @@ export async function renderWeeklyPuppeteer(
   <!-- Header -->
   <div class="header-card">
     <div class="title-group">
-      <h1>🎵 Bili Board 术力口周榜</h1>
+      <h1>${chartTitle}</h1>
       <p>
         <span>📅 ${formatPublishTime(detail)}</span>
         <span>·</span>

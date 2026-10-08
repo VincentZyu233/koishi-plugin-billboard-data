@@ -78,16 +78,18 @@ export const usage = `
   <p style="margin: 4px 0;">💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
   <blockquote style="margin: 14px 0; padding: 10px 14px; border-left: 5px solid #00AEEC; border-radius: 6px; background: rgba(0, 174, 236, 0.08); line-height: 1.6;">
-    <b style="color: #00AEEC;">💡 数据来源与致谢：</b><br>
-    数据源来自于 Bilibili <b>@Bili Board Atel</b> 周榜公开专栏，并通过 GitHub 仓库 
-    <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">VincentZyuApps/billboard-data</a> 每周定时归档与全量静态化。
+    <b style="color: #00AEEC;">💡 双源数据体系与致谢：</b><br>
+    • <b>Bilibili 周榜：</b>来源于 B 站 <b>@Bili Board Atel</b> 周榜公开专栏。<br>
+    • <b>Niconico 周榜：</b>来源于日本 Billboard JAPAN 与 ニコニコ 官方合作出品、B 站 <b>@秋叶-风</b> 专栏同步归档的《ニコニコ VOCALOID SONGS TOP20》。<br>
+    所有数据通过 GitHub 仓库 
+    <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">VincentZyuApps/billboard-data</a> 定时自动化归档。
   </blockquote>
 
   <!-- 折叠区域 1 -->
   <details style="${detailsStyle}">
     <summary style="${summaryStyle}"><b style="color: #00AEEC;">🎨 渲染引擎与排版指南（Takumi / Puppeteer / QQ Markdown）</b></summary>
     <div style="${detailsBodyStyle}">
-      <p style="margin: 4px 0;"><b>⚡ Takumi WASM 渲染出图：</b>基于 Rust/WASM 的轻量化渲染引擎，开箱即用，无需安装 Chromium 或外部服务。针对中文字体，默认推荐 <code>release</code> 模式自动拉取霞鹜文楷等字体文件进行离线排版。</p>
+      <p style="margin: 4px 0;"><b>⚡ Takumi WASM 渲染出图：</b>基于 Rust/WASM 的轻量化渲染引擎，开箱即用，支持 <code>takumiScale</code> 放大倍率（默认 1.5 倍高清输出），适配移动端高分屏。</p>
       <p style="margin: 4px 0;"><b>🎨 Puppeteer 网页出图：</b>高保真海报级渲染，需要 Koishi 加载 <code>puppeteer</code> 服务。能完美呈现圆角、多重阴影与微缩歌曲封面。</p>
       <p style="margin: 4px 0;"><b>📊 QQ 原生 Markdown：</b>在 QQ 平台原生下发图文卡片与表格，支持蓝字外部跳转至 B 站原专栏或原视频。支持卡片流式排版与紧凑表格排版切换。</p>
       <p style="margin: 4px 0;"><b>📤 多选输出模式：</b>可在「消息输出格式」勾选列表中任意勾选需要的格式（纯文本、Takumi、Puppeteer、QQ Markdown），满足不同群聊场景需要。</p>
@@ -123,15 +125,18 @@ export const usage = `
     <summary style="${summaryStyle}"><b style="color: #2f855a;">📢 每周新榜自动广播推送</b></summary>
     <div style="${detailsBodyStyle}">
       <p style="margin: 4px 0;"><b>🔔 自动检测：</b>启用 <code>enableBroadcast</code> 后，插件将每隔 <code>checkInterval</code> 分钟检查是否有最新一期周榜发布，新榜出炉时自动广播。</p>
-      <p style="margin: 4px 0;"><b>🎯 目标广播表格：</b>在 <code>broadcastTargets</code> 中配置目标群号或频道 ID。支持多平台（OneBot、QQ、Discord 等）；<code>selfId</code> 留空时会自动向该平台所有已在线的机器人广播。</p>
+      <p style="margin: 4px 0;"><b>🎯 目标广播表格：</b>在 <code>broadcastTargets</code> 中配置目标群号或频道 ID，并可为每个目标独立选择推送的数据源（B站 / N站）。<code>selfId</code> 留空时会自动向该平台所有已在线的机器人广播。</p>
     </div>
   </details>
 
   <h3 style="margin: 16px 0 6px 0; font-size: 15px;">📌 常用指令速查</h3>
-  <pre style="margin: 4px 0; padding: 10px 14px; border-radius: 8px; background: var(--k-card-bg, rgba(0, 0, 0, 0.05)); border: 1px solid var(--k-color-divider, rgba(127, 127, 127, 0.2)); overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;"><code>bb [期数]         # 查看最新或指定期数周榜（如 bb 120）
+  <pre style="margin: 4px 0; padding: 10px 14px; border-radius: 8px; background: var(--k-card-bg, rgba(0, 0, 0, 0.05)); border: 1px solid var(--k-color-divider, rgba(127, 127, 127, 0.2)); overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;"><code>bb [期数]         # 查看最新或指定期数周榜（默认数据源）
+bb -s nico        # 查看日本 N站 VOCALOID TOP20 最新周榜
+周榜b [期数]      # 快捷查看 B站周榜
+周榜n / nb [期数] # 快捷查看 N站周榜
 bb -n 20          # 展示 TOP 20
-bb.history        # 查看近期收录的周榜期数总览
-bb.search &lt;歌名&gt;  # 检索某首歌曲在近期周榜中的排位战绩
+bb.history        # 查看近期收录的周榜期数总览（支持 -s 参数）
+bb.search &lt;歌名&gt;  # 检索某首歌曲在近期周榜中的排位战绩（支持 -s 参数）
 bb.reload         # 管理员强制刷新远程索引缓存
 bb.help           # 查看周榜详细帮助与选项说明</code></pre>
 

@@ -14,7 +14,10 @@ export function formatWeeklyText(
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
 
-  lines.push(`🎵【Bili Board 术力口周榜】第 ${detail.issue} 期`)
+  const isNico = detail.source === 'niconico' || detail.title.includes('ニコニコ')
+  const chartTitle = isNico ? 'ニコニコ VOCALOID SONGS TOP20' : 'Bili Board 术力口周榜'
+
+  lines.push(`🎵【${chartTitle}】第 ${detail.issue} 期`)
   const timeStr = formatPublishTime(detail)
   if (timeStr || detail.week) {
     lines.push(`📅 时间: ${timeStr} (第 ${detail.week || ''} 周)`)
@@ -28,7 +31,11 @@ export function formatWeeklyText(
     else if (item.rank === 2) medal = '🥈【TOP 2】'
     else if (item.rank === 3) medal = '🥉【TOP 3】'
 
-    lines.push(`${medal} ${item.title}`)
+    const titleLine = item.author ? `${item.title} / ${item.author}` : item.title
+    lines.push(`${medal} ${titleLine}`)
+    if (item.prev_rank || item.weeks) {
+      lines.push(`   📊 上周: ${item.prev_rank || '-'} | 在榜周数: ${item.weeks || 1}周`)
+    }
     if (item.bvid) {
       lines.push(`   ▶ https://bilibili.com/video/${item.bvid}`)
     }

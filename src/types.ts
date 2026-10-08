@@ -22,6 +22,8 @@ export interface VideoMeta {
   stat: VideoStat
 }
 
+export type BillboardSource = 'bilibili' | 'niconico'
+
 export interface IssueMeta {
   issue: number
   type: string
@@ -38,6 +40,7 @@ export interface IssueMeta {
 }
 
 export interface IndexData {
+  source?: BillboardSource
   updated_at: string
   latest_issue: number
   total_issues: number
@@ -47,6 +50,10 @@ export interface IndexData {
 export interface SongItem {
   rank: number
   title: string
+  author?: string
+  prev_rank?: string
+  weeks?: number
+  aid?: string
   bvid: string
   url: string
   pic_url: string
@@ -54,6 +61,7 @@ export interface SongItem {
 }
 
 export interface WeeklyDetail {
+  source?: BillboardSource
   issue: number
   type: string
   opus_id: string
