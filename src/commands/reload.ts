@@ -8,8 +8,9 @@ export function registerReloadCommand(ctx: Context, config: Config, service: Bil
     .alias('bb.reload')
     .action(async ({ session }) => {
       try {
+        service.clearCache()
         const index = await service.getIndex(true)
-        await sendReply(session, config, `✅ 周榜索引已强制刷新成功！当前最新: 第 ${index.latest_issue} 期。`)
+        await sendReply(session, config, `✅ 周榜内存缓存已清空，远程索引已刷新成功！当前最新: 第 ${index.latest_issue} 期。`)
       } catch (err: any) {
         await sendReply(session, config, `❌ 刷新失败: ${err.message || err}`)
       }

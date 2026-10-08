@@ -68,6 +68,12 @@ export class BillboardService {
     throw new Error(`所有配置的数据源及代理策略均请求失败: ${lastErr?.message || lastErr}`)
   }
 
+  clearCache() {
+    this.indexCache = null
+    this.indexCacheTime = 0
+    this.detailCache.clear()
+  }
+
   async getIndex(force = false): Promise<IndexData> {
     const now = Date.now()
     // 缓存 10 分钟 (600,000 ms)
@@ -81,8 +87,8 @@ export class BillboardService {
     return data
   }
 
-  async getWeekly(issue: number): Promise<WeeklyDetail> {
-    if (this.detailCache.has(issue)) {
+  async getWeekly(issue: number, force = false): Promise<WeeklyDetail> {
+    if (!force && this.detailCache.has(issue)) {
       return this.detailCache.get(issue)!
     }
 
