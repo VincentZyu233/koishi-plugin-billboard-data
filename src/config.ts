@@ -17,12 +17,21 @@ export interface Config {
   ghProxyPrefix: string
   customProxyUrl: string
   outputFormats: OutputFormat[]
+  // 纯文本设置
+  textShowDetailedInfo: boolean
+  // Takumi WASM 渲染设置
   takumiFontMode: TakumiFontMode
   takumiCustomFontPath: string
   takumiShowAllCovers: boolean
+  takumiShowDetailedInfo: boolean
+  // Puppeteer 网页出图设置
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
   puppeteerShowAllCovers: boolean
+  puppeteerShowDetailedInfo: boolean
+  // QQ 原生 Markdown 设置
+  qqMarkdownShowDetailedInfo: boolean
+  // 常规偏好与广播
   enableQuote: boolean
   defaultTop: number
   showCover: boolean
@@ -57,13 +66,19 @@ export const Config: Schema<Config> = Schema.intersect([
         Schema.const('text' as OutputFormat).description('📝 纯文本消息'),
         Schema.const('takumi' as OutputFormat).description('⚡ Takumi WASM 渲染出图（B站粉蓝极速轻量看板）'),
         Schema.const('puppeteer' as OutputFormat).description('🎨 Puppeteer 网页出图（高保真精美海报）'),
-        Schema.const('qq_markdown' as OutputFormat).description('📊 QQ 原生 Markdown 表格（含蓝字外链跳转，仅在 qq 平台生效）'),
+        Schema.const('qq_markdown' as OutputFormat).description('📊 QQ 原生 Markdown（含蓝字外链跳转，仅在 qq 平台生效）'),
       ])
     )
       .role('checkbox')
       .default(['text', 'takumi', 'puppeteer', 'qq_markdown'])
       .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）'),
   }).description('📤 消息输出格式'),
+
+  Schema.object({
+    textShowDetailedInfo: Schema.boolean()
+      .default(true)
+      .description('📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等）'),
+  }).description('📝 纯文本排版设置'),
 
   Schema.object({
     takumiFontMode: Schema.union([
@@ -80,6 +95,9 @@ export const Config: Schema<Config> = Schema.intersect([
     takumiShowAllCovers: Schema.boolean()
       .default(true)
       .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图）'),
+    takumiShowDetailedInfo: Schema.boolean()
+      .default(true)
+      .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
   }).description('⚡ Takumi WASM 渲染设置'),
 
   Schema.object({
@@ -98,7 +116,16 @@ export const Config: Schema<Config> = Schema.intersect([
     puppeteerShowAllCovers: Schema.boolean()
       .default(true)
       .description('🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带高保真缩略图）'),
+    puppeteerShowDetailedInfo: Schema.boolean()
+      .default(true)
+      .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
   }).description('🎨 Puppeteer 网页出图设置'),
+
+  Schema.object({
+    qqMarkdownShowDetailedInfo: Schema.boolean()
+      .default(true)
+      .description('📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格）'),
+  }).description('📊 QQ 原生 Markdown 设置'),
 
   Schema.object({
     enableQuote: Schema.boolean()
@@ -111,8 +138,8 @@ export const Config: Schema<Config> = Schema.intersect([
       .description('🔢 默认展示前多少名（可通过 -n 参数临时覆盖，最大 20）'),
     showCover: Schema.boolean()
       .default(true)
-      .description('🖼️ 查询周榜时是否附带第一名的榜单海报图片'),
-  }).description('🎨 显示偏好'),
+      .description('🖼️ 查询周榜时是否附带第一名的榜单海报图片（仅纯文本模式生效）'),
+  }).description('⚙️ 通用偏好设置'),
 
   Schema.object({
     enableBroadcast: Schema.boolean()

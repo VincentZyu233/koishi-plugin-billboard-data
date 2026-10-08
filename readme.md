@@ -58,6 +58,12 @@
 |---|---|---|---|
 | `outputFormats` | `string[]` | 全部勾选 | 📤 周榜返回格式（可多选：`text` 纯文本 / `takumi` WASM 出图 / `puppeteer` 网页海报 / `qq_markdown` QQ 表格，后者仅 qq 平台） |
 
+### 📝 纯文本排版设置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `textShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等） |
+
 ### ⚡ Takumi WASM 渲染设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
@@ -65,6 +71,7 @@
 | `takumiFontMode` | `"release" \| "custom" \| "none"` | `"release"` | 🔤 Takumi WASM 出图字体模式（支持 Release 下载校验、本地路径或系统内置） |
 | `takumiCustomFontPath` | `string` | `""` | 📁 Takumi 本地自定义字体路径 |
 | `takumiShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图） |
+| `takumiShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
 
 ### 🎨 Puppeteer 网页出图设置
 
@@ -73,14 +80,21 @@
 | `puppeteerFontMode` | `"npm" \| "release" \| "custom" \| "none"` | `"npm"` | 🔤 Puppeteer 网页出图字体模式（支持 npm 字体包、Release 字体、本地路径或默认字体） |
 | `puppeteerCustomFontPath` | `string` | `""` | 📁 Puppeteer 本地自定义字体路径 |
 | `puppeteerShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带精美缩略图） |
+| `puppeteerShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
 
-### 🎨 显示偏好
+### 📊 QQ 原生 Markdown 设置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `qqMarkdownShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格） |
+
+### ⚙️ 通用偏好设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `enableQuote` | `boolean` | `true` | 💬 是否启用引用回复 |
 | `defaultTop` | `number` | `10` | 🔢 默认展示前多少名（可在 1 ~ 20 之间调节，亦可通过 `-n` 参数覆盖） |
-| `showCover` | `boolean` | `true` | 🖼️ 查询周榜时是否附带第一名的榜单海报图片 |
+| `showCover` | `boolean` | `true` | 🖼️ 查询周榜时是否附带第一名的榜单海报图片（仅纯文本模式生效） |
 
 ### 📢 订阅推送
 

@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import { type WeeklyDetail, formatPublishTime } from '../types'
+import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
 import { ensureLxgwFont, getLxgwFontPath } from '../utils/font'
 
 declare module 'koishi' {
@@ -81,6 +81,23 @@ async function resolveFontCss(ctx: Context, config: Config): Promise<string> {
   return `body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }`
 }
 
+function renderUploaderAvatarHtml(face?: string, name?: string, size: number = 24): string {
+  const initial = (name || '?').trim().charAt(0) || '?'
+  if (face) {
+    return `
+      <div class="avatar-box" style="width: ${size}px; height: ${size}px;">
+        <img src="${face}" alt="${initial}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="avatar-fallback" style="display: none; width: ${size}px; height: ${size}px; font-size: ${Math.round(size * 0.55)}px;">${initial}</div>
+      </div>
+    `
+  }
+  return `
+    <div class="avatar-box" style="width: ${size}px; height: ${size}px;">
+      <div class="avatar-fallback" style="display: flex; width: ${size}px; height: ${size}px; font-size: ${Math.round(size * 0.55)}px;">${initial}</div>
+    </div>
+  `
+}
+
 export async function renderWeeklyPuppeteer(
   ctx: Context,
   config: Config,
@@ -96,6 +113,7 @@ export async function renderWeeklyPuppeteer(
 
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const fontCss = await resolveFontCss(ctx, config)
+  const showDetailed = config.puppeteerShowDetailedInfo ?? true
 
   const top1 = items[0]
   const otherItems = items.slice(1)
@@ -114,39 +132,38 @@ export async function renderWeeklyPuppeteer(
     }
 
     body {
-      width: 960px;
-      padding: 40px;
-      background: radial-gradient(circle at 10% 10%, #E8F7FD 0%, #FFF0F5 50%, #F5F7FA 100%);
+      width: 920px;
+      padding: 24px;
+      background-color: #F4F5F7;
       color: #18191C;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 14px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* 顶部横幅 */
+    /* 顶部 Banner Header */
     .header-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 20px;
-      padding: 24px 32px;
-      box-shadow: 0 10px 30px rgba(0, 174, 236, 0.08);
+      background: #FFFFFF;
+      border: 1px solid #E3E5E7;
+      border-radius: 16px;
+      padding: 20px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
     .title-group h1 {
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #00AEEC 0%, #FB7299 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 26px;
+      font-weight: 700;
+      color: #00AEEC;
       margin-bottom: 6px;
+      letter-spacing: 0.5px;
     }
 
     .title-group p {
-      font-size: 14px;
+      font-size: 13px;
       color: #61666D;
       display: flex;
       gap: 12px;
@@ -167,17 +184,17 @@ export async function renderWeeklyPuppeteer(
     /* TOP 1 冠军展示卡片 */
     .top1-hero {
       position: relative;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 24px;
+      background: #FFFFFF;
+      border-radius: 20px;
       overflow: hidden;
-      border: 2px solid #FFE6AF;
-      box-shadow: 0 16px 36px rgba(229, 169, 60, 0.15);
+      border: 2px solid #FCE7C8;
+      box-shadow: 0 8px 24px rgba(229, 169, 60, 0.12);
       display: flex;
       flex-direction: column;
     }
 
     .top1-header {
-      padding: 20px 28px;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -189,13 +206,12 @@ export async function renderWeeklyPuppeteer(
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, #FFC837 0%, #FF8008 100%);
+      background: #E5A93C;
       color: white;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
       padding: 6px 14px;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(255, 128, 8, 0.25);
     }
 
     .top1-bv {
@@ -208,23 +224,25 @@ export async function renderWeeklyPuppeteer(
     }
 
     .top1-content {
-      padding: 24px 28px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
     .top1-title {
-      font-size: 26px;
-      font-weight: 800;
+      font-size: 24px;
+      font-weight: 700;
       color: #18191C;
-      margin-bottom: 16px;
       line-height: 1.3;
     }
 
     .top1-cover-box {
       width: 100%;
       height: 380px;
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       position: relative;
     }
 
@@ -235,6 +253,65 @@ export async function renderWeeklyPuppeteer(
       display: block;
     }
 
+    /* 头像通用 */
+    .avatar-box {
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #E3E5E7;
+    }
+
+    .avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-fallback {
+      width: 100%;
+      height: 100%;
+      background: #E3E5E7;
+      color: #61666D;
+      font-weight: 600;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* TOP 1 视频上传者与指标 */
+    .top1-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .uploader-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #18191C;
+    }
+
+    .duration-label {
+      font-size: 13px;
+      color: #9499A0;
+    }
+
+    .top1-stats-box {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: #F9FAFB;
+      border: 1px solid #E3E5E7;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #61666D;
+    }
+
     /* TOP 2~N 列表 */
     .ranking-grid {
       display: flex;
@@ -242,69 +319,79 @@ export async function renderWeeklyPuppeteer(
       gap: 10px;
     }
 
-    .rank-row {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 14px;
-      padding: 14px 20px;
+    .rank-card {
+      background: #FFFFFF;
+      border: 1px solid #E3E5E7;
+      border-radius: 12px;
+      padding: 12px 18px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
 
-    .rank-row.top2 {
-      border-left: 6px solid #8A9BA8;
+    .rank-card.top2 {
+      border-left: 5px solid #7A8B99;
       background: linear-gradient(to right, #F9FBFC, #FFFFFF);
     }
 
-    .rank-row.top3 {
-      border-left: 6px solid #C27C51;
+    .rank-card.top3 {
+      border-left: 5px solid #C27C51;
       background: linear-gradient(to right, #FCFAF9, #FFFFFF);
     }
 
-    .rank-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .rank-tag {
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-
-    .tag-gold { background: #FFF4D9; color: #D48806; }
-    .tag-silver { background: #EEF2F6; color: #536471; }
-    .tag-bronze { background: #FDF0E9; color: #B35824; }
-    .tag-normal { background: #E8F7FD; color: #00AEEC; }
-
-    .song-thumb {
-      width: 64px;
-      height: 38px;
+    .card-thumb {
+      width: 80px;
+      height: 50px;
       border-radius: 6px;
       overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      margin-right: 14px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
-    .song-thumb img {
+    .card-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    .song-title {
-      font-size: 16px;
+    .card-main {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .card-row-1 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .rank-tag {
+      font-size: 13px;
       font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .tag-silver { background: #EEF2F6; color: #7A8B99; }
+    .tag-bronze { background: #FDF0E9; color: #C27C51; }
+    .tag-normal { background: #E8F7FD; color: #00AEEC; }
+
+    .song-title {
+      font-size: 15px;
+      font-weight: 600;
       color: #18191C;
       white-space: nowrap;
       overflow: hidden;
@@ -313,13 +400,71 @@ export async function renderWeeklyPuppeteer(
 
     .bvid-tag {
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 400;
       color: #00AEEC;
-      background: #F4F8FA;
-      padding: 4px 10px;
-      border-radius: 6px;
       white-space: nowrap;
-      margin-left: 12px;
+      margin-left: 10px;
+    }
+
+    .card-row-2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .uploader-text {
+      font-size: 13px;
+      color: #61666D;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .duration-text {
+      font-size: 12px;
+      color: #9499A0;
+      white-space: nowrap;
+    }
+
+    .card-row-3 {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+      color: #9499A0;
+      border-top: 1px dashed #F0F1F2;
+      padding-top: 4px;
+    }
+
+    /* 传统单行样式 */
+    .single-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .single-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .single-thumb {
+      width: 64px;
+      height: 38px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .single-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     /* 底部水印 */
@@ -327,7 +472,7 @@ export async function renderWeeklyPuppeteer(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
+      padding: 8px 6px;
       font-size: 12px;
       color: #9499A0;
     }
@@ -364,6 +509,22 @@ export async function renderWeeklyPuppeteer(
         <img src="${top1.pic_url}" alt="Cover" />
       </div>
       ` : ''}
+
+      ${showDetailed && top1.video_meta ? `
+      <div class="top1-meta-row">
+        ${renderUploaderAvatarHtml(top1.video_meta.uploader?.face, top1.video_meta.uploader?.name, 28)}
+        <span class="uploader-label">视频上传者: ${top1.video_meta.uploader?.name || '未知'}</span>
+        <span class="duration-label">时长: ${formatDuration(top1.video_meta.duration)}</span>
+      </div>
+      <div class="top1-stats-box">
+        <span>播放 ${formatCount(top1.video_meta.stat?.view)}</span>
+        <span>弹幕 ${formatCount(top1.video_meta.stat?.danmaku)}</span>
+        <span>点赞 ${formatCount(top1.video_meta.stat?.like)}</span>
+        <span>投币 ${formatCount(top1.video_meta.stat?.coin)}</span>
+        <span>收藏 ${formatCount(top1.video_meta.stat?.favorite)}</span>
+        <span>分享 ${formatCount(top1.video_meta.stat?.share)}</span>
+      </div>
+      ` : ''}
     </div>
   </div>
   ` : ''}
@@ -374,31 +535,69 @@ export async function renderWeeklyPuppeteer(
     ${otherItems.map(item => {
       let tagClass = 'tag-normal'
       let rowClass = ''
-      let tagText = `【TOP ${item.rank}】`
+      let tagText = `TOP ${item.rank}`
 
       if (item.rank === 2) {
         tagClass = 'tag-silver'
         rowClass = 'top2'
-        tagText = '🥈 TOP 2'
+        tagText = 'TOP 2'
       } else if (item.rank === 3) {
         tagClass = 'tag-bronze'
         rowClass = 'top3'
-        tagText = '🥉 TOP 3'
+        tagText = 'TOP 3'
       }
 
       const showThumb = config.puppeteerShowAllCovers && showCover && item.pic_url
-      const thumbHtml = showThumb ? `<div class="song-thumb"><img src="${item.pic_url}" alt="thumb" /></div>` : ''
 
-      return `
-      <div class="rank-row ${rowClass}">
-        <div class="rank-left">
-          <span class="rank-tag ${tagClass}">${tagText}</span>
+      if (showDetailed && item.video_meta) {
+        const meta = item.video_meta
+        const s = meta.stat || {} as any
+        const uploaderName = meta.uploader?.name || '未知'
+        const dur = formatDuration(meta.duration)
+        const thumbHtml = showThumb ? `<div class="card-thumb"><img src="${item.pic_url}" alt="thumb" /></div>` : ''
+
+        return `
+        <div class="rank-card ${rowClass}">
           ${thumbHtml}
-          <span class="song-title">${item.title}</span>
+          <div class="card-main">
+            <div class="card-row-1">
+              <div class="card-title-group">
+                <span class="rank-tag ${tagClass}">${tagText}</span>
+                <span class="song-title">${item.title}</span>
+              </div>
+              ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
+            </div>
+            <div class="card-row-2">
+              ${renderUploaderAvatarHtml(meta.uploader?.face, uploaderName, 22)}
+              <span class="uploader-text">视频上传者: ${uploaderName}</span>
+              <span class="duration-text">· 时长: ${dur}</span>
+            </div>
+            <div class="card-row-3">
+              <span>播放 ${formatCount(s.view)}</span>
+              <span>弹幕 ${formatCount(s.danmaku)}</span>
+              <span>点赞 ${formatCount(s.like)}</span>
+              <span>投币 ${formatCount(s.coin)}</span>
+              <span>收藏 ${formatCount(s.favorite)}</span>
+              <span>分享 ${formatCount(s.share)}</span>
+            </div>
+          </div>
         </div>
-        ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
-      </div>
-      `
+        `
+      } else {
+        const thumbHtml = showThumb ? `<div class="single-thumb"><img src="${item.pic_url}" alt="thumb" /></div>` : ''
+        return `
+        <div class="rank-card ${rowClass}">
+          <div class="single-row">
+            <div class="single-left">
+              <span class="rank-tag ${tagClass}">${tagText}</span>
+              ${thumbHtml}
+              <span class="song-title">${item.title}</span>
+            </div>
+            ${item.bvid ? `<span class="bvid-tag">${item.bvid}</span>` : ''}
+          </div>
+        </div>
+        `
+      }
     }).join('')}
   </div>
   ` : ''}

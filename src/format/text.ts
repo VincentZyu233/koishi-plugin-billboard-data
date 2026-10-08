@@ -1,7 +1,13 @@
 import { h } from 'koishi'
-import { type WeeklyDetail, formatPublishTime } from '../types'
+import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
+import type { Config } from '../config'
 
-export function formatWeeklyText(detail: WeeklyDetail, limit: number, showCover: boolean) {
+export function formatWeeklyText(
+  detail: WeeklyDetail,
+  limit: number,
+  showCover: boolean,
+  showDetailedInfo: boolean = true
+) {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
 
@@ -22,6 +28,20 @@ export function formatWeeklyText(detail: WeeklyDetail, limit: number, showCover:
     lines.push(`${medal} ${item.title}`)
     if (item.bvid) {
       lines.push(`   ▶ https://bilibili.com/video/${item.bvid}`)
+    }
+
+    if (showDetailedInfo && item.video_meta) {
+      const meta = item.video_meta
+      const uploaderName = meta.uploader?.name || '未知'
+      const dur = formatDuration(meta.duration)
+      lines.push(`   👤 视频上传者: ${uploaderName} (${dur})`)
+
+      if (meta.stat) {
+        const s = meta.stat
+        lines.push(
+          `   📊 播放:${formatCount(s.view)} 弹幕:${formatCount(s.danmaku)} 点赞:${formatCount(s.like)} 投币:${formatCount(s.coin)} 收藏:${formatCount(s.favorite)}`
+        )
+      }
     }
   }
 

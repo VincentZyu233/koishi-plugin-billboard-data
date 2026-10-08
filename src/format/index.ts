@@ -24,7 +24,12 @@ export async function dispatchWeeklyOutput(
 
   // 1. 纯文本输出
   if (formats.includes('text')) {
-    const textMsg = formatWeeklyText(detail, limit, showCover)
+    const textMsg = formatWeeklyText(
+      detail,
+      limit,
+      showCover,
+      config.textShowDetailedInfo ?? true
+    )
     await sendReply(session, config, textMsg)
   }
 
@@ -52,7 +57,7 @@ export async function dispatchWeeklyOutput(
     }
   }
 
-  // 4. QQ 原生 Markdown 表格（仅在 qq 平台生效）
+  // 4. QQ 原生 Markdown 表格/卡片（仅在 qq 平台生效）
   if (formats.includes('qq_markdown') && session.platform === 'qq') {
     try {
       await sendWeeklyQQMarkdown(ctx, session, config, detail, limit)
