@@ -14,8 +14,8 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
       '  bb [期数]         查看最新或指定期数周榜 (默认按配置数据源)',
       '  bb -s bili [期数] 查看 B站本土 Bili Board 周榜',
       '  bb -s nico [期数] 查看 日本 N站 Billboard TOP20 周榜',
-      '  周榜b [期数]      快捷直达 B站周榜',
-      '  周榜n / nb [期数] 快捷直达 N站周榜',
+      '  周榜b / bbb [期数] 快捷直达 B站周榜',
+      '  周榜n / nbb [期数] 快捷直达 N站周榜',
       '  bb.history        查看最近收录的周榜期数一览',
       '  bb.search <歌名>  在近期周榜中搜索歌曲排位战绩',
       '  bb.reload         强制刷新远程数据缓存',
@@ -92,17 +92,18 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
       }
     })
 
-  // 快捷指令：周榜b
+  // 快捷指令：周榜b / bbb
   ctx.command('周榜b [issue:number]', '📺 查看 Bili Board 术力口周榜 (B站本地榜单)')
+    .alias('bbb')
     .action(async ({ session }, targetIssue) => {
       if (!session) return
       const arg = targetIssue ? ` ${targetIssue}` : ''
       return await session.execute(`bb -s bilibili${arg}`)
     })
 
-  // 快捷指令：周榜n / nb
+  // 快捷指令：周榜n / nbb
   ctx.command('周榜n [issue:number]', '🎵 查看 ニコニコ VOCALOID SONGS TOP20 (日本N站榜单)')
-    .alias('nb')
+    .alias('nbb')
     .action(async ({ session }, targetIssue) => {
       if (!session) return
       const arg = targetIssue ? ` ${targetIssue}` : ''

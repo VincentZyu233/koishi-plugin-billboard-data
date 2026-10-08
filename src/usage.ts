@@ -137,8 +137,8 @@ export const usage = `
   <h3 style="margin: 16px 0 6px 0; font-size: 15px;">📌 常用指令速查</h3>
   <pre style="margin: 4px 0; padding: 10px 14px; border-radius: 8px; background: var(--k-card-bg, rgba(0, 0, 0, 0.05)); border: 1px solid var(--k-color-divider, rgba(127, 127, 127, 0.2)); overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;"><code>bb [期数]         # 查看最新或指定期数周榜（默认数据源）
 bb -s nico        # 查看日本 N站 VOCALOID TOP20 最新周榜
-周榜b [期数]      # 快捷查看 B站周榜
-周榜n / nb [期数] # 快捷查看 N站周榜
+周榜b / bbb [期数] # 快捷查看 B站周榜
+周榜n / nbb [期数] # 快捷查看 N站周榜
 bb -n 20          # 展示 TOP 20
 bb.history        # 查看近期收录的周榜期数总览（支持 -s 参数）
 bb.search &lt;歌名&gt;  # 检索某首歌曲在近期周榜中的排位战绩（支持 -s 参数）
