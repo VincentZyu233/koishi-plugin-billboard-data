@@ -14,6 +14,7 @@ export type PuppeteerFontMode = 'npm' | 'release' | 'custom' | 'none'
 
 export interface Config {
   dataSources: string[]
+  autoPurgeJsdelivr: boolean
   ghProxyPrefix: string
   customProxyUrl: string
   outputFormats: OutputFormat[]
@@ -51,6 +52,10 @@ export const Config: Schema<Config> = Schema.intersect([
         'https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data',
       ])
       .description('📡 数据源列表（按顺序从前往后依次尝试请求）'),
+    autoPurgeJsdelivr: Schema.boolean()
+      .default(true)
+      .experimental()
+      .description('⚡ 请求 jsDelivr CDN 前主动调用 Purge 刷新 API（防止读取到旧版边缘缓存）'),
   }).description('🌐 数据源设置'),
 
   Schema.object({

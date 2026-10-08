@@ -42,6 +42,7 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `dataSources` | `string[]` | jsDelivr + GitHub Raw | 📡 数据源列表（按顺序从前往后依次尝试请求） |
+| `autoPurgeJsdelivr` | `boolean` | `true` | ⚡ 请求 jsDelivr CDN 前主动调用 Purge 刷新 API（实验性，防止边缘缓存延迟） |
 
 ### 🛡️ 网络代理配置
 

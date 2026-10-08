@@ -7,10 +7,31 @@ export class BillboardService {
   private indexCacheTime = 0
   private detailCache = new Map<number, WeeklyDetail>()
 
+  private purgedUrls = new Set<string>()
+
   constructor(private ctx: Context, private config: Config) {}
 
   private isGitHubUrl(url: string): boolean {
     return /^https?:\/\/(raw\.githubusercontent\.com|github\.com|gist\.githubusercontent\.com)/i.test(url)
+  }
+
+  private isJsdelivrUrl(url: string): boolean {
+    return /^https?:\/\/cdn\.jsdelivr\.net\//i.test(url)
+  }
+
+  private async purgeJsdelivr(url: string): Promise<void> {
+    if (!this.config.autoPurgeJsdelivr) return
+    if (!this.isJsdelivrUrl(url)) return
+    if (this.purgedUrls.has(url)) return
+
+    const purgeUrl = url.replace('https://cdn.jsdelivr.net/', 'https://purge.jsdelivr.net/')
+    this.purgedUrls.add(url)
+    try {
+      await this.ctx.http.get(purgeUrl, { timeout: 5000 })
+      this.ctx.logger('billboard').debug(`⚡ 成功触发 jsDelivr purge 刷新: ${purgeUrl}`)
+    } catch (err: any) {
+      this.ctx.logger('billboard').debug(`⚡ 触发 jsDelivr purge 跳过/忽略: ${err.message || err}`)
+    }
   }
 
   private async fetchWithFallback<T>(path: string): Promise<T> {
@@ -27,6 +48,9 @@ export class BillboardService {
     for (let sIdx = 0; sIdx < sources.length; sIdx++) {
       const base = sources[sIdx].replace(/\/+$/, '')
       const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
+
+      // 若启用且为 jsDelivr URL，先尝试触发 purge 刷新
+      await this.purgeJsdelivr(rawUrl)
 
       // 构建针对当前 URL 的候选请求方案列表（依次尝试：gh-proxy -> 自定义代理 -> 直连）
       const attempts: { desc: string; url: string; options: { timeout: number; proxy?: string } }[] = []
@@ -75,6 +99,7 @@ export class BillboardService {
     this.indexCache = null
     this.indexCacheTime = 0
     this.detailCache.clear()
+    this.purgedUrls.clear()
   }
 
   async getIndex(force = false): Promise<IndexData> {

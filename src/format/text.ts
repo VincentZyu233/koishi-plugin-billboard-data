@@ -43,6 +43,8 @@ export function formatWeeklyText(
         )
       }
     }
+
+    lines.push('----------')
   }
 
   lines.push('━━━━━━━━━━━━━━━')
