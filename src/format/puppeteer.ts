@@ -132,13 +132,13 @@ export async function renderWeeklyPuppeteer(
     }
 
     body {
-      width: 920px;
-      padding: 24px;
+      width: 840px;
+      padding: 16px;
       background-color: #F4F5F7;
       color: #18191C;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 8px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -146,8 +146,8 @@ export async function renderWeeklyPuppeteer(
     .header-card {
       background: #FFFFFF;
       border: 1px solid #E3E5E7;
-      border-radius: 16px;
-      padding: 20px 28px;
+      border-radius: 14px;
+      padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -155,15 +155,15 @@ export async function renderWeeklyPuppeteer(
     }
 
     .title-group h1 {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       color: #00AEEC;
-      margin-bottom: 6px;
+      margin-bottom: 3px;
       letter-spacing: 0.5px;
     }
 
     .title-group p {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #61666D;
       display: flex;
       gap: 12px;
@@ -173,10 +173,10 @@ export async function renderWeeklyPuppeteer(
     .issue-badge {
       background: linear-gradient(135deg, #FB7299 0%, #FF85A7 100%);
       color: white;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 700;
-      padding: 8px 18px;
-      border-radius: 30px;
+      padding: 4px 14px;
+      border-radius: 20px;
       box-shadow: 0 4px 14px rgba(251, 114, 153, 0.35);
       letter-spacing: 0.5px;
     }
@@ -184,54 +184,56 @@ export async function renderWeeklyPuppeteer(
     /* TOP 1 冠军展示卡片 */
     .top1-hero {
       position: relative;
-      background: #FFFFFF;
-      border-radius: 20px;
+      background: linear-gradient(180deg, #FFFDF8 0%, #FFFFFF 100%);
+      border-radius: 14px;
       overflow: hidden;
-      border: 2px solid #FCE7C8;
-      box-shadow: 0 8px 24px rgba(229, 169, 60, 0.12);
+      border: 2px solid #FCD34D;
+      box-shadow: 0 10px 28px rgba(245, 158, 11, 0.16);
       display: flex;
       flex-direction: column;
     }
 
     .top1-header {
-      padding: 16px 24px;
+      padding: 10px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to right, #FFFDF8, #FFFFFF);
-      border-bottom: 1px solid #FFF3DC;
+      background: linear-gradient(90deg, #FEF3C7 0%, #FFFBEB 60%, #FFFFFF 100%);
+      border-bottom: 1px solid #FDE68A;
     }
 
     .top1-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #E5A93C;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      box-shadow: 0 3px 10px rgba(217, 119, 6, 0.35);
+      letter-spacing: 0.5px;
     }
 
     .top1-bv {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: #00AEEC;
       background: #E8F7FD;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 6px;
     }
 
     .top1-content {
-      padding: 20px 24px;
+      padding: 12px 18px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 8px;
     }
 
     .top1-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #18191C;
       line-height: 1.3;
@@ -239,8 +241,8 @@ export async function renderWeeklyPuppeteer(
 
     .top1-cover-box {
       width: 100%;
-      height: 380px;
-      border-radius: 14px;
+      height: 350px;
+      border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       position: relative;
@@ -286,29 +288,29 @@ export async function renderWeeklyPuppeteer(
     .top1-meta-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .uploader-label {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       color: #18191C;
     }
 
     .duration-label {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #9499A0;
     }
 
     .top1-stats-box {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 12px;
       background: #F9FAFB;
       border: 1px solid #E3E5E7;
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 13px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12.5px;
       color: #61666D;
     }
 
@@ -316,36 +318,41 @@ export async function renderWeeklyPuppeteer(
     .ranking-grid {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
     }
 
     .rank-card {
       background: #FFFFFF;
       border: 1px solid #E3E5E7;
-      border-radius: 12px;
-      padding: 12px 18px;
+      border-radius: 8px;
+      padding: 6px 10px;
       display: flex;
       align-items: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s;
     }
 
     .rank-card.top2 {
-      border-left: 5px solid #7A8B99;
-      background: linear-gradient(to right, #F9FBFC, #FFFFFF);
+      border: 1.5px solid #CBD5E1;
+      border-left: 6px solid #64748B;
+      background: linear-gradient(90deg, #F8FAFC 0%, #FFFFFF 50%);
+      box-shadow: 0 3px 12px rgba(100, 116, 139, 0.08);
     }
 
     .rank-card.top3 {
-      border-left: 5px solid #C27C51;
-      background: linear-gradient(to right, #FCFAF9, #FFFFFF);
+      border: 1.5px solid #FDBA74;
+      border-left: 6px solid #EA580C;
+      background: linear-gradient(90deg, #FFF7ED 0%, #FFFFFF 50%);
+      box-shadow: 0 3px 12px rgba(234, 88, 12, 0.08);
     }
 
     .card-thumb {
-      width: 80px;
-      height: 50px;
+      width: 104px;
+      height: 65px;
       border-radius: 6px;
       overflow: hidden;
       flex-shrink: 0;
-      margin-right: 14px;
+      margin-right: 10px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
@@ -360,7 +367,7 @@ export async function renderWeeklyPuppeteer(
       display: flex;
       flex-direction: column;
       flex: 1;
-      gap: 6px;
+      gap: 2px;
       overflow: hidden;
     }
 
@@ -373,24 +380,37 @@ export async function renderWeeklyPuppeteer(
     .card-title-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       overflow: hidden;
     }
 
     .rank-tag {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
       white-space: nowrap;
     }
 
-    .tag-silver { background: #EEF2F6; color: #7A8B99; }
-    .tag-bronze { background: #FDF0E9; color: #C27C51; }
-    .tag-normal { background: #E8F7FD; color: #00AEEC; }
+    .tag-silver {
+      background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+      color: #334155;
+      border: 1px solid #CBD5E1;
+      box-shadow: 0 1px 3px rgba(100, 116, 139, 0.15);
+    }
+    .tag-bronze {
+      background: linear-gradient(135deg, #FFEDD5 0%, #FED7AA 100%);
+      color: #9A3412;
+      border: 1px solid #FDBA74;
+      box-shadow: 0 1px 3px rgba(234, 88, 12, 0.15);
+    }
+    .tag-normal {
+      background: #E8F7FD;
+      color: #00AEEC;
+    }
 
     .song-title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 600;
       color: #18191C;
       white-space: nowrap;
@@ -400,7 +420,7 @@ export async function renderWeeklyPuppeteer(
 
     .bvid-tag {
       font-size: 13px;
-      font-weight: 400;
+      font-weight: 500;
       color: #00AEEC;
       white-space: nowrap;
       margin-left: 10px;
@@ -409,12 +429,13 @@ export async function renderWeeklyPuppeteer(
     .card-row-2 {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .uploader-text {
       font-size: 13px;
-      color: #61666D;
+      font-weight: 500;
+      color: #4E5358;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -429,11 +450,12 @@ export async function renderWeeklyPuppeteer(
     .card-row-3 {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
       font-size: 12px;
-      color: #9499A0;
-      border-top: 1px dashed #F0F1F2;
-      padding-top: 4px;
+      font-weight: 500;
+      color: #4E5358;
+      border-top: 1px dashed #EBECEE;
+      padding-top: 2px;
     }
 
     /* 传统单行样式 */
@@ -447,7 +469,7 @@ export async function renderWeeklyPuppeteer(
     .single-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
       overflow: hidden;
     }
@@ -458,6 +480,7 @@ export async function renderWeeklyPuppeteer(
       border-radius: 6px;
       overflow: hidden;
       flex-shrink: 0;
+      margin-right: 10px;
     }
 
     .single-thumb img {
@@ -472,9 +495,28 @@ export async function renderWeeklyPuppeteer(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 6px;
+      padding: 6px 4px 2px 4px;
       font-size: 12px;
       color: #9499A0;
+    }
+
+    .footer-credits {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .footer-primary {
+      font-size: 11px;
+      font-weight: 500;
+      color: #9499A0;
+    }
+
+    .footer-secondary {
+      font-size: 10px;
+      font-weight: 400;
+      color: #B0B4B8;
     }
   </style>
 </head>
@@ -540,11 +582,11 @@ export async function renderWeeklyPuppeteer(
       if (item.rank === 2) {
         tagClass = 'tag-silver'
         rowClass = 'top2'
-        tagText = 'TOP 2'
+        tagText = 'TOP 2 亚军'
       } else if (item.rank === 3) {
         tagClass = 'tag-bronze'
         rowClass = 'top3'
-        tagText = 'TOP 3'
+        tagText = 'TOP 3 季军'
       }
 
       const showThumb = config.puppeteerShowAllCovers && showCover && item.pic_url
@@ -605,7 +647,10 @@ export async function renderWeeklyPuppeteer(
   <!-- Footer -->
   <div class="footer">
     <span>💡 数据来源于 Bilibili @Bili Board Atel 周榜公开专栏</span>
-    <span>Koishi Billboard Data · High-Definition Poster</span>
+    <div class="footer-credits">
+      <span class="footer-primary">Generated by koishi-plugin-billboard-data</span>
+      <span class="footer-secondary">Render Engine: Chromium + Puppeteer</span>
+    </div>
   </div>
 
 </body>

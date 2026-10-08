@@ -13,21 +13,30 @@ const nodeRequire = createRequire(
 )
 const takumiModule: typeof import('@takumi-rs/wasm/node') = nodeRequire('@takumi-rs/wasm/node')
 
-const WIDTH = 920
-const PADDING = 24
-const CONTENT_WIDTH = WIDTH - PADDING * 2 // 872
-const CARD_PADDING = 20
-const INNER_WIDTH = CONTENT_WIDTH - CARD_PADDING * 2 // 832
+const WIDTH = 840
+const PADDING = 16
+const CONTENT_WIDTH = WIDTH - PADDING * 2 // 808
+const CARD_PADDING = 16
+const INNER_WIDTH = CONTENT_WIDTH - CARD_PADDING * 2 // 776
 
-// B 站经典粉蓝配色看板调色盘
 const palette = {
   biliBlue: '#00AEEC',
   biliPink: '#FB7299',
   biliPinkLight: '#FFF0F5',
   biliBlueLight: '#E8F7FD',
-  gold: '#E5A93C',
-  silver: '#7A8B99',
-  bronze: '#C27C51',
+  // 更加璀璨鲜亮的金、银、铜勋章与主题色
+  gold: '#F59E0B',
+  goldBg: '#FEF3C7',
+  goldBorder: '#FCD34D',
+  goldText: '#B45309',
+  silver: '#64748B',
+  silverBg: '#F1F5F9',
+  silverBorder: '#CBD5E1',
+  silverText: '#475569',
+  bronze: '#EA580C',
+  bronzeBg: '#FFEDD5',
+  bronzeBorder: '#FDBA74',
+  bronzeText: '#C2410C',
   bg: '#F4F5F7',
   cardBg: '#FFFFFF',
   textMain: '#18191C',
@@ -83,10 +92,10 @@ function calculateCoverHeight(buffer: Uint8Array): number {
     const imageSize = nodeRequire('image-size')
     const dim = imageSize(buffer)
     if (dim && dim.width && dim.height) {
-      return Math.min(460, Math.round((INNER_WIDTH * dim.height) / dim.width))
+      return Math.min(420, Math.round((INNER_WIDTH * dim.height) / dim.width))
     }
   } catch {}
-  return 380
+  return 360
 }
 
 function renderAvatarFallback(initial: string, size: number = 24): Node {
@@ -184,9 +193,9 @@ export async function renderWeeklyTakumi(
       style: {
         width: CONTENT_WIDTH,
         backgroundColor: palette.cardBg,
-        borderRadius: 16,
-        padding: '18px 24px',
-        marginBottom: 14,
+        borderRadius: 14,
+        padding: '12px 18px',
+        marginBottom: 8,
         border: `1px solid ${palette.border}`,
         display: 'flex',
         flexDirection: 'column',
@@ -198,23 +207,23 @@ export async function renderWeeklyTakumi(
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 6,
+            marginBottom: 4,
           },
           children: [
             text('Bili Board 术力口周榜', {
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: 600,
               color: palette.biliBlue,
             }),
             container({
               style: {
                 backgroundColor: palette.biliPink,
-                padding: '4px 12px',
-                borderRadius: 12,
+                padding: '3px 10px',
+                borderRadius: 10,
               },
               children: [
                 text(`第 ${detail.issue} 期`, {
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 600,
                   color: '#FFFFFF',
                 }),
@@ -223,7 +232,7 @@ export async function renderWeeklyTakumi(
           ],
         }),
         text(`发布时间: ${formatPublishTime(detail)} · 第 ${detail.week || ''} 周`, {
-          fontSize: 13,
+          fontSize: 12.5,
           fontWeight: 400,
           color: palette.textSub,
         }),
@@ -245,25 +254,25 @@ export async function renderWeeklyTakumi(
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 10,
+          marginBottom: 6,
         },
         children: [
           container({
             style: {
               backgroundColor: palette.gold,
-              borderRadius: 8,
-              padding: '4px 10px',
+              borderRadius: 6,
+              padding: '3px 8px',
             },
             children: [
               text('TOP 1 冠军', {
                 fontSize: 14,
-                fontWeight: 600,
+                fontWeight: 700,
                 color: '#FFFFFF',
               }),
             ],
           }),
           text(top1.bvid ? `BV: ${top1.bvid}` : '', {
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: 500,
             color: palette.biliBlue,
           }),
@@ -277,7 +286,7 @@ export async function renderWeeklyTakumi(
         fontSize: 22,
         fontWeight: 600,
         color: palette.textMain,
-        marginBottom: top1CoverBuffer ? 12 : 6,
+        marginBottom: top1CoverBuffer ? 8 : 4,
       })
     )
 
@@ -289,10 +298,10 @@ export async function renderWeeklyTakumi(
           style: {
             width: INNER_WIDTH,
             height: coverHeight,
-            borderRadius: 12,
+            borderRadius: 10,
             overflow: 'hidden',
             display: 'flex',
-            marginBottom: showDetailed && top1.video_meta ? 12 : 0,
+            marginBottom: showDetailed && top1.video_meta ? 8 : 0,
           },
           children: [
             image({
@@ -302,7 +311,7 @@ export async function renderWeeklyTakumi(
               style: {
                 width: INNER_WIDTH,
                 height: coverHeight,
-                borderRadius: 12,
+                borderRadius: 10,
                 objectFit: 'cover',
               },
             }),
@@ -326,18 +335,18 @@ export async function renderWeeklyTakumi(
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            marginBottom: 8,
+            marginBottom: 6,
           },
           children: [
-            renderAvatar(top1Avatar, initial, 28),
+            renderAvatar(top1Avatar, initial, 26),
             text(`视频上传者: ${uploaderName}`, {
-              fontSize: 14,
+              fontSize: 13.5,
               fontWeight: 500,
               color: palette.textMain,
               marginRight: 12,
             }),
             text(`时长: ${dur}`, {
-              fontSize: 13,
+              fontSize: 12.5,
               fontWeight: 400,
               color: palette.textMuted,
             }),
@@ -354,16 +363,16 @@ export async function renderWeeklyTakumi(
             alignItems: 'center',
             backgroundColor: '#F9FAFB',
             borderRadius: 8,
-            padding: '8px 14px',
+            padding: '6px 12px',
             border: `1px solid ${palette.border}`,
           },
           children: [
-            text(`播放 ${formatCount(s.view)}`, { fontSize: 13, color: palette.textSub, marginRight: 16 }),
-            text(`弹幕 ${formatCount(s.danmaku)}`, { fontSize: 13, color: palette.textSub, marginRight: 16 }),
-            text(`点赞 ${formatCount(s.like)}`, { fontSize: 13, color: palette.textSub, marginRight: 16 }),
-            text(`投币 ${formatCount(s.coin)}`, { fontSize: 13, color: palette.textSub, marginRight: 16 }),
-            text(`收藏 ${formatCount(s.favorite)}`, { fontSize: 13, color: palette.textSub, marginRight: 16 }),
-            text(`分享 ${formatCount(s.share)}`, { fontSize: 13, color: palette.textSub }),
+            text(`播放 ${formatCount(s.view)}`, { fontSize: 12.5, color: palette.textSub, marginRight: 12 }),
+            text(`弹幕 ${formatCount(s.danmaku)}`, { fontSize: 12.5, color: palette.textSub, marginRight: 12 }),
+            text(`点赞 ${formatCount(s.like)}`, { fontSize: 12.5, color: palette.textSub, marginRight: 12 }),
+            text(`投币 ${formatCount(s.coin)}`, { fontSize: 12.5, color: palette.textSub, marginRight: 12 }),
+            text(`收藏 ${formatCount(s.favorite)}`, { fontSize: 12.5, color: palette.textSub, marginRight: 12 }),
+            text(`分享 ${formatCount(s.share)}`, { fontSize: 12.5, color: palette.textSub }),
           ],
         })
       )
@@ -373,11 +382,11 @@ export async function renderWeeklyTakumi(
       container({
         style: {
           width: CONTENT_WIDTH,
-          backgroundColor: palette.cardBg,
-          borderRadius: 16,
+          backgroundColor: '#FFFDF5',
+          borderRadius: 14,
           padding: CARD_PADDING,
-          marginBottom: 14,
-          border: '2px solid #FCE7C8',
+          marginBottom: 8,
+          border: `2px solid ${palette.goldBorder}`,
           display: 'flex',
           flexDirection: 'column',
         },
@@ -394,15 +403,21 @@ export async function renderWeeklyTakumi(
     let badgeColor = palette.biliBlueLight
     let badgeTextColor = palette.biliBlue
     let rankText = `TOP ${item.rank}`
+    let cardBorder = `1px solid ${palette.border}`
+    let cardBg = palette.cardBg
 
     if (item.rank === 2) {
-      badgeColor = '#EEF2F6'
-      badgeTextColor = palette.silver
-      rankText = 'TOP 2'
+      badgeColor = palette.silverBg
+      badgeTextColor = palette.silverText
+      rankText = 'TOP 2 亚军'
+      cardBorder = `1.5px solid ${palette.silverBorder}`
+      cardBg = '#F8FAFC'
     } else if (item.rank === 3) {
-      badgeColor = '#FDF0E9'
-      badgeTextColor = palette.bronze
-      rankText = 'TOP 3'
+      badgeColor = palette.bronzeBg
+      badgeTextColor = palette.bronzeText
+      rankText = 'TOP 3 季军'
+      cardBorder = `1.5px solid ${palette.bronzeBorder}`
+      cardBg = '#FFFBF7'
     }
 
     if (showDetailed && item.video_meta) {
@@ -421,19 +436,19 @@ export async function renderWeeklyTakumi(
           style: {
             backgroundColor: badgeColor,
             borderRadius: 6,
-            padding: '4px 8px',
-            marginRight: 10,
+            padding: '2px 7px',
+            marginRight: 8,
           },
           children: [
             text(rankText, {
-              fontSize: 13,
-              fontWeight: 600,
+              fontSize: 13.5,
+              fontWeight: 700,
               color: badgeTextColor,
             }),
           ],
         }),
         text(item.title, {
-          fontSize: 15,
+          fontSize: 17,
           fontWeight: 600,
           color: palette.textMain,
         }),
@@ -446,7 +461,7 @@ export async function renderWeeklyTakumi(
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 8,
+            marginBottom: 2,
           },
           children: [
             container({
@@ -461,7 +476,7 @@ export async function renderWeeklyTakumi(
             text(item.bvid || '', {
               fontSize: 13,
               color: palette.biliBlue,
-              fontWeight: 400,
+              fontWeight: 500,
             }),
           ],
         })
@@ -472,9 +487,9 @@ export async function renderWeeklyTakumi(
         renderAvatar(avatarBuf, initial, 22),
         text(`视频上传者: ${uploaderName}`, {
           fontSize: 13,
-          fontWeight: 400,
+          fontWeight: 500,
           color: palette.textSub,
-          marginRight: 12,
+          marginRight: 10,
         }),
         text(`时长: ${dur}`, {
           fontSize: 12,
@@ -489,7 +504,7 @@ export async function renderWeeklyTakumi(
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            marginBottom: 6,
+            marginBottom: 2,
           },
           children: line2Children,
         })
@@ -502,16 +517,16 @@ export async function renderWeeklyTakumi(
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            paddingTop: 4,
-            borderTop: '1px dashed #F0F1F2',
+            paddingTop: 2,
+            borderTop: '1px dashed #EBECEE',
           },
           children: [
-            text(`播放 ${formatCount(s.view)}`, { fontSize: 12, color: palette.textMuted, marginRight: 14 }),
-            text(`弹幕 ${formatCount(s.danmaku)}`, { fontSize: 12, color: palette.textMuted, marginRight: 14 }),
-            text(`点赞 ${formatCount(s.like)}`, { fontSize: 12, color: palette.textMuted, marginRight: 14 }),
-            text(`投币 ${formatCount(s.coin)}`, { fontSize: 12, color: palette.textMuted, marginRight: 14 }),
-            text(`收藏 ${formatCount(s.favorite)}`, { fontSize: 12, color: palette.textMuted, marginRight: 14 }),
-            text(`分享 ${formatCount(s.share)}`, { fontSize: 12, color: palette.textMuted }),
+            text(`播放 ${formatCount(s.view)}`, { fontSize: 12, color: '#4E5358', marginRight: 10, fontWeight: 500 }),
+            text(`弹幕 ${formatCount(s.danmaku)}`, { fontSize: 12, color: '#4E5358', marginRight: 10, fontWeight: 500 }),
+            text(`点赞 ${formatCount(s.like)}`, { fontSize: 12, color: '#4E5358', marginRight: 10, fontWeight: 500 }),
+            text(`投币 ${formatCount(s.coin)}`, { fontSize: 12, color: '#4E5358', marginRight: 10, fontWeight: 500 }),
+            text(`收藏 ${formatCount(s.favorite)}`, { fontSize: 12, color: '#4E5358', marginRight: 10, fontWeight: 500 }),
+            text(`分享 ${formatCount(s.share)}`, { fontSize: 12, color: '#4E5358', fontWeight: 500 }),
           ],
         })
       )
@@ -522,11 +537,11 @@ export async function renderWeeklyTakumi(
           container({
             style: {
               width: CONTENT_WIDTH,
-              backgroundColor: palette.cardBg,
+              backgroundColor: cardBg,
               borderRadius: 10,
-              padding: '12px 16px',
-              marginBottom: 8,
-              border: `1px solid ${palette.border}`,
+              padding: '6px 10px',
+              marginBottom: 6,
+              border: cardBorder,
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
@@ -534,21 +549,21 @@ export async function renderWeeklyTakumi(
             children: [
               container({
                 style: {
-                  width: 80,
-                  height: 50,
+                  width: 104,
+                  height: 65,
                   borderRadius: 6,
                   overflow: 'hidden',
-                  marginRight: 14,
+                  marginRight: 10,
                   display: 'flex',
                 },
                 children: [
                   image({
                     src: coverBuf,
-                    width: 80,
-                    height: 50,
+                    width: 104,
+                    height: 65,
                     style: {
-                      width: 80,
-                      height: 50,
+                      width: 104,
+                      height: 65,
                       borderRadius: 6,
                       objectFit: 'cover',
                     },
@@ -571,11 +586,11 @@ export async function renderWeeklyTakumi(
           container({
             style: {
               width: CONTENT_WIDTH,
-              backgroundColor: palette.cardBg,
+              backgroundColor: cardBg,
               borderRadius: 10,
-              padding: '12px 16px',
-              marginBottom: 8,
-              border: `1px solid ${palette.border}`,
+              padding: '6px 12px',
+              marginBottom: 6,
+              border: cardBorder,
               display: 'flex',
               flexDirection: 'column',
             },
@@ -590,13 +605,13 @@ export async function renderWeeklyTakumi(
           style: {
             backgroundColor: badgeColor,
             borderRadius: 6,
-            padding: '4px 8px',
-            marginRight: 10,
+            padding: '3px 7px',
+            marginRight: 8,
           },
           children: [
             text(rankText, {
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               color: badgeTextColor,
             }),
           ],
@@ -611,7 +626,7 @@ export async function renderWeeklyTakumi(
               height: 38,
               borderRadius: 6,
               overflow: 'hidden',
-              marginRight: 12,
+              marginRight: 10,
               display: 'flex',
             },
             children: [
@@ -633,8 +648,8 @@ export async function renderWeeklyTakumi(
 
       leftGroupChildren.push(
         text(item.title, {
-          fontSize: 15,
-          fontWeight: 500,
+          fontSize: 16,
+          fontWeight: 600,
           color: palette.textMain,
         })
       )
@@ -643,11 +658,11 @@ export async function renderWeeklyTakumi(
         container({
           style: {
             width: CONTENT_WIDTH,
-            backgroundColor: palette.cardBg,
+            backgroundColor: cardBg,
             borderRadius: 10,
-            padding: '10px 16px',
-            marginBottom: 8,
-            border: `1px solid ${palette.border}`,
+            padding: '7px 12px',
+            marginBottom: 6,
+            border: cardBorder,
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
@@ -683,7 +698,7 @@ export async function renderWeeklyTakumi(
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '10px 4px 4px 4px',
+        padding: '6px 4px 2px 4px',
       },
       children: [
         text('数据来源于 Bilibili @Bili Board Atel 周榜公开专栏', {
@@ -691,10 +706,24 @@ export async function renderWeeklyTakumi(
           color: palette.textMuted,
           fontWeight: 400,
         }),
-        text('Generated by Koishi Takumi-rs', {
-          fontSize: 12,
-          color: palette.textMuted,
-          fontWeight: 400,
+        container({
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+          },
+          children: [
+            text('Generated by koishi-plugin-billboard-data', {
+              fontSize: 11,
+              color: palette.textMuted,
+              fontWeight: 500,
+            }),
+            text('Render Engine: Takumi-rs (WASM)', {
+              fontSize: 10,
+              color: '#B0B4B8',
+              fontWeight: 400,
+            }),
+          ],
         }),
       ],
     })
