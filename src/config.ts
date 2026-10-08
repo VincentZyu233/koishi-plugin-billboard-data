@@ -47,6 +47,8 @@ export const Config: Schema<Config> = Schema.intersect([
       .default([
         'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
         'https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data',
+        'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data',
+        'https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data',
       ])
       .description('📡 数据源列表（按顺序从前往后依次尝试请求）'),
   }).description('🌐 数据源设置'),

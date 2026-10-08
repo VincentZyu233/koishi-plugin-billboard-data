@@ -4,7 +4,7 @@
 
 用于查询《Bili Board 术力口周榜》（VOCALOID / 虚拟歌手周榜）的 Koishi 插件。
 
-数据源来自于由 GitHub Actions 自动化每周定时归档的公开数据仓库 [billboard-data](https://github.com/VincentZyu233/billboard-data)。
+数据源来自于由 GitHub Actions 自动化每周定时归档的公开数据仓库 [billboard-data](https://github.com/VincentZyuApps/billboard-data)。
 
 ---
 

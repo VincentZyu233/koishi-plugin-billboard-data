@@ -16,7 +16,10 @@ export class BillboardService {
   private async fetchWithFallback<T>(path: string): Promise<T> {
     const sources = this.config.dataSources && this.config.dataSources.length > 0
       ? this.config.dataSources
-      : ['https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data']
+      : [
+          'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
+          'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data',
+        ]
 
     const logger = this.ctx.logger('billboard')
     let lastErr: any = null
