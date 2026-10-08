@@ -14,10 +14,10 @@ export function formatWeeklyMessage(detail: WeeklyDetail, limit: number, showCov
   lines.push('━━━━━━━━━━━━━━━')
 
   for (const item of items) {
-    let medal = `${item.rank}.`
-    if (item.rank === 1) medal = '🥇 TOP 1'
-    else if (item.rank === 2) medal = '🥈 TOP 2'
-    else if (item.rank === 3) medal = '🥉 TOP 3'
+    let medal = `【TOP ${item.rank}】`
+    if (item.rank === 1) medal = '🥇【TOP 1】'
+    else if (item.rank === 2) medal = '🥈【TOP 2】'
+    else if (item.rank === 3) medal = '🥉【TOP 3】'
 
     lines.push(`${medal} ${item.title}`)
     if (item.bvid) {
