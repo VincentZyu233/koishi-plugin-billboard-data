@@ -16,11 +16,18 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
       '  bb.reload         强制刷新远程数据缓存',
     ].join('\n'))
     .option('limit', '-n <limit:number> 展示排名前几位', { fallback: config.defaultTop })
-    .option('cover', '-c 附带第一名封面图')
-    .option('noCover', '-C 不展示封面图')
+    .option('cover', '-c, --cover <cover:string> 是否展示封面图 (y/n/yes/no/t/f/true/false)')
     .action(async ({ session, options }, targetIssue) => {
       const limit = Math.max(1, Math.min(20, options?.limit || config.defaultTop))
-      const showCover = options?.noCover ? false : (options?.cover ? true : config.showCover)
+      let showCover = config.showCover
+      if (options?.cover !== undefined && options?.cover !== null) {
+        const val = String(options.cover).trim().toLowerCase()
+        if (['y', 'yes', 't', 'true'].includes(val)) {
+          showCover = true
+        } else if (['n', 'no', 'f', 'false'].includes(val)) {
+          showCover = false
+        }
+      }
 
       try {
         let detail
