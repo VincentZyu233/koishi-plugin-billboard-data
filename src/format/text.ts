@@ -1,12 +1,14 @@
 import { h } from 'koishi'
-import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
+import { type WeeklyDetail, type RenderStats, formatPublishTime, formatCount, formatDuration } from '../types'
 import type { Config } from '../config'
 
 export function formatWeeklyText(
   detail: WeeklyDetail,
   limit: number,
   showCover: boolean,
-  showDetailedInfo: boolean = true
+  showDetailedInfo: boolean = true,
+  stats?: RenderStats,
+  showRenderInfo: boolean = true
 ) {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   const lines: string[] = []
@@ -49,6 +51,12 @@ export function formatWeeklyText(
 
   lines.push('━━━━━━━━━━━━━━━')
   lines.push(`💡 发送「周榜 [期数]」查看历史，发送「周榜.查歌 <歌名>」检索战绩`)
+
+  if (showRenderInfo && stats) {
+    const totalMs = Date.now() - stats.commandStartTime
+    lines.push('====================')
+    lines.push(`⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | 📊 总耗时: ${totalMs}ms`)
+  }
 
   const textPart = lines.join('\n')
 

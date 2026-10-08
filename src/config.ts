@@ -23,18 +23,22 @@ export interface Config {
   outputFormats: OutputFormat[]
   // 纯文本设置
   textShowDetailedInfo: boolean
+  textShowRenderInfo: boolean
   // Takumi WASM 渲染设置
   takumiFontMode: TakumiFontMode
   takumiCustomFontPath: string
   takumiShowAllCovers: boolean
   takumiShowDetailedInfo: boolean
+  takumiShowRenderInfo: boolean
   // Puppeteer 网页出图设置
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
   puppeteerShowAllCovers: boolean
   puppeteerShowDetailedInfo: boolean
+  puppeteerShowRenderInfo: boolean
   // QQ 原生 Markdown 设置
   qqMarkdownShowDetailedInfo: boolean
+  qqMarkdownShowRenderInfo: boolean
   // 常规偏好与广播
   defaultTop: number
   showCover: boolean
@@ -89,13 +93,16 @@ export const Config: Schema<Config> = Schema.intersect([
     )
       .role('checkbox')
       .default(['text', 'takumi', 'puppeteer', 'qq_markdown'])
-      .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）'),
+      .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）<br><i>默认全部勾选，可以按照自己的需要选择需要的，取消勾选不需要的格式捏~</i>'),
   }).description('📤 消息输出格式'),
 
   Schema.object({
     textShowDetailedInfo: Schema.boolean()
       .default(true)
       .description('📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等）'),
+    textShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('⏱️ 是否在文本末尾展示 API 请求耗时、尝试源数量与总耗时'),
   }).description('📝 纯文本排版设置'),
 
   Schema.object({
@@ -116,6 +123,9 @@ export const Config: Schema<Config> = Schema.intersect([
     takumiShowDetailedInfo: Schema.boolean()
       .default(true)
       .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
+    takumiShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('⏱️ 是否在出图水印处展示 API 请求耗时、尝试源数量与 WASM 渲染耗时'),
   }).description('⚡ Takumi WASM 渲染设置'),
 
   Schema.object({
@@ -137,12 +147,18 @@ export const Config: Schema<Config> = Schema.intersect([
     puppeteerShowDetailedInfo: Schema.boolean()
       .default(true)
       .description('📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标）'),
+    puppeteerShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('⏱️ 是否在网页底栏展示 API 请求耗时、尝试源数量与浏览器渲染耗时'),
   }).description('🎨 Puppeteer 网页出图设置'),
 
   Schema.object({
     qqMarkdownShowDetailedInfo: Schema.boolean()
       .default(true)
       .description('📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格）'),
+    qqMarkdownShowRenderInfo: Schema.boolean()
+      .default(true)
+      .description('⏱️ 是否在 Markdown 末尾展示 API 请求耗时、尝试源数量与总耗时'),
   }).description('📊 QQ 原生 Markdown 设置'),
 
   Schema.object({

@@ -64,6 +64,7 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `textShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者、投稿时长、播放/弹幕/点赞数据等） |
+| `textShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在文本末尾展示 API 请求耗时、尝试源数量及总耗时 |
 
 ### ⚡ Takumi WASM 渲染设置
 
@@ -73,6 +74,7 @@
 | `takumiCustomFontPath` | `string` | `""` | 📁 Takumi 本地自定义字体路径 |
 | `takumiShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带微缩封面图） |
 | `takumiShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
+| `takumiShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Takumi WASM 渲染及总耗时 |
 
 ### 🎨 Puppeteer 网页出图设置
 
@@ -82,12 +84,14 @@
 | `puppeteerCustomFontPath` | `string` | `""` | 📁 Puppeteer 本地自定义字体路径 |
 | `puppeteerShowAllCovers` | `boolean` | `true` | 🖼️ 是否每首歌曲都展示封面图（开启时 TOP 2~N 列表项也附带精美缩略图） |
 | `puppeteerShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（包含视频上传者头像/昵称、时长、播放/弹幕/点赞/投币/收藏/分享全量指标） |
+| `puppeteerShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在图片消息后追加展示 API 请求、Puppeteer 渲染及总耗时 |
 
 ### 📊 QQ 原生 Markdown 设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `qqMarkdownShowDetailedInfo` | `boolean` | `true` | 📋 是否显示详细信息（开启时采用卡片流式排版展示视频上传者与播放指标，关闭时采用紧凑表格） |
+| `qqMarkdownShowRenderInfo` | `boolean` | `true` | ⏱️ 是否在 QQ Markdown 末尾追加展示 API 请求、尝试源数量及总耗时 |
 
 ### ⚙️ 通用偏好设置
 

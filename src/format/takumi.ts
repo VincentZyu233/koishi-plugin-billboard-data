@@ -5,7 +5,7 @@ import { container, text, image, type Node } from '@takumi-rs/helpers'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
+import { type WeeklyDetail, type RenderStats, formatPublishTime, formatCount, formatDuration } from '../types'
 import { ensureLxgwFont } from '../utils/font'
 
 const nodeRequire = createRequire(
@@ -160,7 +160,8 @@ export async function renderWeeklyTakumi(
   config: Config,
   detail: WeeklyDetail,
   limit: number,
-  showCover: boolean
+  showCover: boolean,
+  stats?: RenderStats
 ) {
   const fontBuffer = await loadFontBuffer(ctx, config)
   const renderer = new takumiModule.Renderer(fontBuffer ? { fonts: [fontBuffer] } : {})
@@ -779,6 +780,16 @@ export async function renderWeeklyTakumi(
     children: rootChildren,
   })
 
+  const renderStartTime = Date.now()
   const imageBuffer = await renderer.render(root, { width: WIDTH, format: 'png' })
-  return h.image(imageBuffer, 'image/png')
+  const renderMs = Date.now() - renderStartTime
+
+  const imageElement = h.image(imageBuffer, 'image/png')
+  if (config.takumiShowRenderInfo && stats) {
+    const totalMs = Date.now() - stats.commandStartTime
+    const infoText = `\n====================\n⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | ⚡ Takumi 渲染: ${renderMs}ms | 📊 总耗时: ${totalMs}ms`
+    return [imageElement, h.text(infoText)]
+  }
+
+  return imageElement
 }

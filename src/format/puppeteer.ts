@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 import type { Context } from 'koishi'
 import { h } from 'koishi'
 import type { Config } from '../config'
-import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
+import { type WeeklyDetail, type RenderStats, formatPublishTime, formatCount, formatDuration } from '../types'
 import { ensureLxgwFont, getLxgwFontPath } from '../utils/font'
 
 declare module 'koishi' {
@@ -103,7 +103,8 @@ export async function renderWeeklyPuppeteer(
   config: Config,
   detail: WeeklyDetail,
   limit: number,
-  showCover: boolean
+  showCover: boolean,
+  stats?: RenderStats
 ) {
   const logger = ctx.logger('billboard')
   if (!ctx.puppeteer) {
@@ -681,12 +682,22 @@ export async function renderWeeklyPuppeteer(
     const page = await ctx.puppeteer.page()
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 20000 })
     const bodyHandle = await page.$('body')
+    const renderStartTime = Date.now()
     const buffer = await bodyHandle.screenshot({
       type: 'png',
       omitBackground: false,
     })
+    const renderMs = Date.now() - renderStartTime
     await page.close()
-    return h.image(buffer, 'image/png')
+
+    const imageElement = h.image(buffer, 'image/png')
+    if (config.puppeteerShowRenderInfo && stats) {
+      const totalMs = Date.now() - stats.commandStartTime
+      const infoText = `\n====================\n⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | 🎨 Puppeteer 渲染: ${renderMs}ms | 📊 总耗时: ${totalMs}ms`
+      return [imageElement, h.text(infoText)]
+    }
+
+    return imageElement
   } catch (err: any) {
     logger.error(`❌ Puppeteer 截图失败: ${err.message || err}`)
     return null

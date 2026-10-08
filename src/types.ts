@@ -104,3 +104,9 @@ export function formatPublishTime(detail: { date?: string; pub_ts?: number | nul
   }
   return detail.date || '近期'
 }
+
+export interface RenderStats {
+  apiDurationMs: number
+  attemptSourcesCount: number
+  commandStartTime: number
+}

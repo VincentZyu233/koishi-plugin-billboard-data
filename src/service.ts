@@ -9,6 +9,9 @@ export class BillboardService {
 
   private purgedUrls = new Set<string>()
 
+  public lastApiDurationMs = 0
+  public lastAttemptSourcesCount = 1
+
   constructor(private ctx: Context, private config: Config) {}
 
   private isGitHubUrl(url: string): boolean {
@@ -35,6 +38,7 @@ export class BillboardService {
   }
 
   private async fetchWithFallback<T>(path: string): Promise<T> {
+    const startTime = Date.now()
     const sources = this.config.dataSources && this.config.dataSources.length > 0
       ? this.config.dataSources
       : [
@@ -44,8 +48,10 @@ export class BillboardService {
 
     const logger = this.ctx.logger('billboard')
     let lastErr: any = null
+    let attempted = 0
 
     for (let sIdx = 0; sIdx < sources.length; sIdx++) {
+      attempted = sIdx + 1
       const base = sources[sIdx].replace(/\/+$/, '')
       const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
 
@@ -84,7 +90,10 @@ export class BillboardService {
       // 依次尝试该源的候选方案
       for (const attempt of attempts) {
         try {
-          return await this.ctx.http.get<T>(attempt.url, attempt.options)
+          const res = await this.ctx.http.get<T>(attempt.url, attempt.options)
+          this.lastApiDurationMs = Date.now() - startTime
+          this.lastAttemptSourcesCount = attempted
+          return res
         } catch (err: any) {
           lastErr = err
           logger.warn(`数据源 [${sIdx + 1}/${sources.length}] 尝试 [${attempt.desc}] 失败 (${attempt.url}): ${err.message || err}`)
@@ -92,6 +101,8 @@ export class BillboardService {
       }
     }
 
+    this.lastApiDurationMs = Date.now() - startTime
+    this.lastAttemptSourcesCount = attempted
     throw new Error(`所有配置的数据源及代理策略均请求失败: ${lastErr?.message || lastErr}`)
   }
 
@@ -117,6 +128,8 @@ export class BillboardService {
 
   async getWeekly(issue: number, force = false): Promise<WeeklyDetail> {
     if (!force && this.detailCache.has(issue)) {
+      this.lastApiDurationMs = 0
+      this.lastAttemptSourcesCount = 1
       return this.detailCache.get(issue)!
     }
 

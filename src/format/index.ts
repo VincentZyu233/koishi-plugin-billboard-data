@@ -1,6 +1,6 @@
 import type { Session, Context } from 'koishi'
 import type { Config } from '../config'
-import type { WeeklyDetail } from '../types'
+import type { WeeklyDetail, RenderStats } from '../types'
 import { sendReply } from '../utils/reply'
 import { formatWeeklyText } from './text'
 import { renderWeeklyTakumi } from './takumi'
@@ -18,7 +18,8 @@ export async function dispatchWeeklyOutput(
   config: Config,
   detail: WeeklyDetail,
   limit: number,
-  showCover: boolean
+  showCover: boolean,
+  stats?: RenderStats
 ) {
   const formats = config.outputFormats || ['text', 'takumi', 'puppeteer', 'qq_markdown']
 
@@ -28,7 +29,9 @@ export async function dispatchWeeklyOutput(
       detail,
       limit,
       showCover,
-      config.textShowDetailedInfo ?? true
+      config.textShowDetailedInfo ?? true,
+      stats,
+      config.textShowRenderInfo ?? true
     )
     await sendReply(session, config, textMsg)
   }
@@ -36,7 +39,7 @@ export async function dispatchWeeklyOutput(
   // 2. Takumi WASM 出图输出
   if (formats.includes('takumi')) {
     try {
-      const img = await renderWeeklyTakumi(ctx, config, detail, limit, showCover)
+      const img = await renderWeeklyTakumi(ctx, config, detail, limit, showCover, stats)
       if (img) {
         await sendReply(session, config, img)
       }
@@ -48,7 +51,7 @@ export async function dispatchWeeklyOutput(
   // 3. Puppeteer 精美海报出图输出
   if (formats.includes('puppeteer')) {
     try {
-      const img = await renderWeeklyPuppeteer(ctx, config, detail, limit, showCover)
+      const img = await renderWeeklyPuppeteer(ctx, config, detail, limit, showCover, stats)
       if (img) {
         await sendReply(session, config, img)
       }
@@ -60,7 +63,7 @@ export async function dispatchWeeklyOutput(
   // 4. QQ 原生 Markdown 表格/卡片（仅在 qq 平台生效）
   if (formats.includes('qq_markdown') && session.platform === 'qq') {
     try {
-      await sendWeeklyQQMarkdown(ctx, session, config, detail, limit)
+      await sendWeeklyQQMarkdown(ctx, session, config, detail, limit, stats)
     } catch (err: any) {
       ctx.logger('billboard').warn(`⚠️ 发送 QQ Markdown 失败: ${err.message || err}`)
     }

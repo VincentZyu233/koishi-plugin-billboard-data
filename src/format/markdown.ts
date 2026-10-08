@@ -1,11 +1,13 @@
 import type { Session, Context } from 'koishi'
 import type { Config } from '../config'
-import { type WeeklyDetail, formatPublishTime, formatCount, formatDuration } from '../types'
+import { type WeeklyDetail, type RenderStats, formatPublishTime, formatCount, formatDuration } from '../types'
 
 export function buildWeeklyQQMarkdown(
   detail: WeeklyDetail,
   limit: number,
-  showDetailedInfo: boolean = true
+  showDetailedInfo: boolean = true,
+  stats?: RenderStats,
+  showRenderInfo: boolean = false
 ): string {
   const items = detail.items.slice(0, Math.min(limit, detail.items.length))
   let md = `# 🎵【Bili Board 术力口周榜】第 ${detail.issue} 期\n\n`
@@ -60,6 +62,10 @@ export function buildWeeklyQQMarkdown(
   }
 
   md += `\n> 💡 发送「周榜 [期数]」查看历史，发送「周榜.查歌 <歌名>」检索战绩\n`
+  if (showRenderInfo && stats) {
+    const totalMs = Date.now() - stats.commandStartTime
+    md += `\n---\n> ⏱️ API 请求: ${stats.apiDurationMs}ms (尝试源: ${stats.attemptSourcesCount}) | 📊 总耗时: ${totalMs}ms\n`
+  }
   return md
 }
 
@@ -68,7 +74,8 @@ export async function sendWeeklyQQMarkdown(
   session: Session,
   config: Config,
   detail: WeeklyDetail,
-  limit: number
+  limit: number,
+  stats?: RenderStats
 ): Promise<boolean> {
   const logger = ctx.logger('billboard')
   if (session.platform !== 'qq') {
@@ -76,7 +83,8 @@ export async function sendWeeklyQQMarkdown(
   }
 
   const showDetailed = config.qqMarkdownShowDetailedInfo ?? true
-  const content = buildWeeklyQQMarkdown(detail, limit, showDetailed)
+  const showRenderInfo = config.qqMarkdownShowRenderInfo ?? true
+  const content = buildWeeklyQQMarkdown(detail, limit, showDetailed, stats, showRenderInfo)
 
   try {
     if (session.bot?.internal?.sendMessage) {

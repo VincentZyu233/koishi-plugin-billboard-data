@@ -19,6 +19,7 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
     .option('limit', '-n <limit:number> 展示排名前几位', { fallback: config.defaultTop })
     .option('cover', '-c, --cover <cover:string> 是否展示封面图 (y/n/yes/no/t/f/true/false)')
     .action(async ({ session, options }, targetIssue) => {
+      const commandStartTime = Date.now()
       const limit = Math.max(1, Math.min(20, options?.limit || config.defaultTop))
       let showCover = config.showCover
       if (options?.cover !== undefined && options?.cover !== null) {
@@ -47,7 +48,13 @@ export function registerWeeklyCommand(ctx: Context, config: Config, service: Bil
           detail = res.detail
         }
 
-        await dispatchWeeklyOutput(ctx, session, config, detail, limit, showCover)
+        const stats = {
+          apiDurationMs: service.lastApiDurationMs,
+          attemptSourcesCount: service.lastAttemptSourcesCount,
+          commandStartTime,
+        }
+
+        await dispatchWeeklyOutput(ctx, session, config, detail, limit, showCover, stats)
       } catch (err: any) {
         logger.error(err)
         await sendReply(session, config, `❌ 获取周榜数据失败: ${err.message || err}`)
