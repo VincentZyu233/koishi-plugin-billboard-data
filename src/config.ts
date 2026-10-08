@@ -38,6 +38,9 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('🛡️ 网络代理配置'),
 
   Schema.object({
+    enableQuote: Schema.boolean()
+      .default(true)
+      .description('💬 是否启用引用回复'),
     defaultTop: Schema.number()
       .default(10)
       .min(1)
@@ -46,9 +49,6 @@ export const Config: Schema<Config> = Schema.intersect([
     showCover: Schema.boolean()
       .default(true)
       .description('🖼️ 查询周榜时是否附带第一名的榜单海报图片'),
-    enableQuote: Schema.boolean()
-      .default(false)
-      .description('💬 是否启用引用回复'),
   }).description('🎨 显示偏好'),
 
   Schema.object({
