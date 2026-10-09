@@ -14,7 +14,9 @@ export function applyBroadcast(ctx: Context, config: Config, service: BillboardS
     niconico: 0,
   }
 
-  const sources: BillboardSource[] = ['bilibili', 'niconico']
+  const sources: BillboardSource[] = config.broadcastSources && config.broadcastSources.length > 0
+    ? config.broadcastSources
+    : ['bilibili', 'niconico']
 
   const doBroadcast = async (src: BillboardSource, targetIssue?: number) => {
     try {
@@ -28,8 +30,6 @@ export function applyBroadcast(ctx: Context, config: Config, service: BillboardS
 
       for (const target of config.broadcastTargets) {
         if (!target.enabled || !target.channelId) continue
-        const targetSources = target.sources || ['bilibili', 'niconico']
-        if (!targetSources.includes(src)) continue
 
         try {
           const matchedBots = ctx.bots.filter(b => {
@@ -76,7 +76,7 @@ export function applyBroadcast(ctx: Context, config: Config, service: BillboardS
       for (const target of config.broadcastTargets) {
         if (target.enabled && target.cron?.trim()) {
           (ctx as any).cron(target.cron.trim(), async () => {
-            for (const src of (target.sources || sources)) {
+            for (const src of sources) {
               await doBroadcast(src)
             }
           })

@@ -121,7 +121,7 @@ export const usage = `
     <summary style="${summaryStyle}"><b style="color: #2f855a;">📢 每周新榜自动广播推送 (Cron / 轮询)</b></summary>
     <div style="${detailsBodyStyle}">
       <p style="margin: 4px 0;"><b>🔔 自动检测与 Cron 调度：</b>支持为每个群组单独配置专属 <code>cron</code> 定时表达式（基于 Koishi <code>cron</code> 可选服务），同时也支持传统的 <code>checkInterval</code> 周期性轮询。</p>
-      <p style="margin: 4px 0;"><b>🎯 目标广播表格：</b>在 <code>broadcastTargets</code> 中配置目标群号或频道 ID，并可为每个目标独立选择推送的数据源（B站 / N站）。<code>selfId</code> 留空时会自动向该平台所有已在线的机器人广播。</p>
+      <p style="margin: 4px 0;"><b>🎯 全局推送源与目标表格：</b>在表格上方通过 <code>broadcastSources</code> 全局多选榜单源（B站 / N站），下方 <code>broadcastTargets</code> 仅需配置平台、Bot selfId（留空匹配所有）、群号与专属 Cron，简洁高效！</p>
     </div>
   </details>
 

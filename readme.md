@@ -191,8 +191,9 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `enableBroadcast` | `boolean` | `false` | 🔔 是否启用每周新榜自动广播提醒 |
-| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号、源多选、独立 Cron 与启用开关） |
-| `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测全局轮询周期（分钟） |
+| `broadcastSources` | `string[]` | `['bilibili', 'niconico']` | 📡 广播推送榜单源多选（全局生效于下方所有广播频道/群组） |
+| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号、独立 Cron 与启用开关） |
+| `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测全局轮询周期（分钟，针对未指定 Cron 的目标生效） |
 
 #### 🎯 广播目标表格 (`broadcastTargets`) 说明
 
@@ -202,7 +203,6 @@
 | `platform` | `string` | 🎯 平台标识，例如 `onebot`、`qq`、`discord` |
 | `selfId` | `string` | 🤖 Bot 自身账号 ID。**留空时向该 platform 下所有满足条件的在线 Bot 发送**；填写时精确匹配 |
 | `channelId` | `string` | 📡 目标群号或频道 ID，OneBot 填真实 QQ 群号 |
-| `sources` | `string[]` | 📡 推送数据源多选（`bilibili` / `niconico`，默认全部推送） |
 | `cron` | `string` | ⏰ 目标专属 Cron 定时表达式（留空则遵循全局轮询周期 `checkInterval`） |
 | `enabled` | `boolean` | ✅ 独立启用开关，关闭后跳过该条目标 |
 

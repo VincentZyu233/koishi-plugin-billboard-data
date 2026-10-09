@@ -5,7 +5,6 @@ export interface BroadcastTarget {
   platform: string
   selfId?: string
   channelId: string
-  sources: BillboardSource[]
   enabled: boolean
   cron?: string
 }
@@ -93,6 +92,7 @@ export interface Config {
   defaultTop: number
   showCover: boolean
   enableBroadcast: boolean
+  broadcastSources: BillboardSource[]
   broadcastTargets: BroadcastTarget[]
   checkInterval: number
 }
@@ -350,18 +350,20 @@ export const Config: Schema<Config> = Schema.intersect([
     enableBroadcast: Schema.boolean()
       .default(false)
       .description('🔔 是否启用每周新榜自动广播提醒'),
+    broadcastSources: Schema.array(
+      Schema.union([
+        Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜 (B站本土周榜)'),
+        Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20 (日本N站周榜)'),
+      ])
+    )
+      .role('checkbox')
+      .default(['bilibili', 'niconico'])
+      .description('📡 广播推送榜单源多选（全局生效于下方所有广播频道/群组）'),
     broadcastTargets: Schema.array(Schema.object({
       note: Schema.string().default('').description('📝 备注'),
       platform: Schema.string().default('onebot').description('🎯 平台 (如 onebot, qq, discord)'),
       selfId: Schema.string().default('').description('🤖 Bot ID (可选，留空则匹配该平台任意 Bot)'),
       channelId: Schema.string().default('').description('📡 目标频道/群组 ID'),
-      sources: Schema.array(Schema.union([
-        Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜'),
-        Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20'),
-      ]))
-        .role('checkbox')
-        .default(['bilibili', 'niconico'])
-        .description('📡 广播推送的数据源范围'),
       cron: Schema.string().default('').description('⏰ 专属 Cron 定时表达式（留空则遵循 checkInterval 轮询）'),
       enabled: Schema.boolean().default(true).description('✅ 是否启用'),
     }))
@@ -371,11 +373,10 @@ export const Config: Schema<Config> = Schema.intersect([
         platform: 'onebot',
         selfId: '',
         channelId: '958366323',
-        sources: ['bilibili', 'niconico'],
         cron: '',
         enabled: true,
       }])
-      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号、推送源范围、Cron 定时及是否启用等）'),
+      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号、Cron 定时及是否启用等）'),
     checkInterval: Schema.number()
       .default(15)
       .min(1)
