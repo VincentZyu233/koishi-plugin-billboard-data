@@ -44,7 +44,7 @@ export class BillboardService {
     }
   }
 
-  // 核心流水线调度器：遍历 dataSources 表格
+  // 核心流水线调度器：遍历 dataSourceList 表格
   private async executePipeline<T>(
     operation: {
       type: 'static'
@@ -59,16 +59,16 @@ export class BillboardService {
     }
   ): Promise<T> {
     const startTime = Date.now()
-    const pipeline: DataSourceConfig[] = this.config.dataSources && this.config.dataSources.length > 0
-      ? this.config.dataSources.filter(s => s.enabled)
+    const pipeline: DataSourceConfig[] = this.config.dataSourceList && this.config.dataSourceList.length > 0
+      ? this.config.dataSourceList.filter(s => s.enabled)
       : [
-          { enabled: true, mode: 'local', network: 'proxy', url: '' },
-          { enabled: true, mode: 'local', network: 'direct', url: '' },
-          { enabled: true, mode: 'jsdelivr', network: 'proxy', url: '' },
-          { enabled: true, mode: 'jsdelivr', network: 'direct', url: '' },
-          { enabled: true, mode: 'github', network: 'ghproxy', url: '' },
-          { enabled: true, mode: 'github', network: 'proxy', url: '' },
-          { enabled: true, mode: 'github', network: 'direct', url: '' },
+          { enabled: true, mode: 'crawler', network: 'proxy' },
+          { enabled: true, mode: 'crawler', network: 'direct' },
+          { enabled: true, mode: 'jsdelivr', network: 'proxy' },
+          { enabled: true, mode: 'jsdelivr', network: 'direct' },
+          { enabled: true, mode: 'github', network: 'ghproxy' },
+          { enabled: true, mode: 'github', network: 'proxy' },
+          { enabled: true, mode: 'github', network: 'direct' },
         ]
 
     const logger = this.ctx.logger('billboard')
@@ -80,7 +80,7 @@ export class BillboardService {
       const step = pipeline[i]
 
       // 1. 如果是本地爬虫
-      if (step.mode === 'local') {
+      if (step.mode === 'crawler') {
         if (operation.type === 'static') {
           continue
         }
@@ -107,14 +107,15 @@ export class BillboardService {
         }
       }
 
-      // 2. 如果是静态源 (jsdelivr, github, custom)
+      // 2. 如果是静态源 (jsdelivr 或 github)
       let baseUrl = ''
+      const jsdPrefix = (this.config.customJsdelivrPrefix || 'https://cdn.jsdelivr.net').replace(/\/+$/, '')
+      const ghPrefix = (this.config.customGithubRawPrefix || 'https://raw.githubusercontent.com').replace(/\/+$/, '')
+
       if (step.mode === 'jsdelivr') {
-        baseUrl = step.url?.trim() || 'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data'
+        baseUrl = `${jsdPrefix}/gh/VincentZyuApps/billboard-data@main/data`
       } else if (step.mode === 'github') {
-        baseUrl = step.url?.trim() || 'https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data'
-      } else {
-        baseUrl = step.url?.trim() || ''
+        baseUrl = `${ghPrefix}/VincentZyuApps/billboard-data/main/data`
       }
 
       if (!baseUrl) continue
@@ -134,7 +135,8 @@ export class BillboardService {
       let requestUrl = fullUrl
       let requestProxy: string | undefined
 
-      if (step.network === 'ghproxy' && this.isGitHubUrl(fullUrl)) {
+      // ghproxy 仅对 GitHub 生效；若 jsdelivr 或其他模式误选 ghproxy，自动平滑回退为直连 (direct)
+      if (step.network === 'ghproxy' && step.mode === 'github') {
         if (this.config.enableGhProxy && this.config.ghProxyPrefix?.trim()) {
           const prefix = this.config.ghProxyPrefix.trim().replace(/\/+$/, '')
           requestUrl = `${prefix}/${fullUrl}`

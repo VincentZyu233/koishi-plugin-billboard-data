@@ -21,7 +21,7 @@
 > ### 💡 双源数据体系与致谢
 > - **Bilibili 本土周榜**：来源于 B 站 [@Bili-Board_Atel（点击直达B站专栏）](https://space.bilibili.com/3493269493907727/article)（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：`Bili_Board术力口周榜第122期2026年10月7日第40周`）。
 > - **Niconico 日本周榜**：来源于 B 站 [@Elvansphere（点击直达B站专栏）](https://space.bilibili.com/5937105/article)（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：`【2026/10/07】ニコニコ VOCALOID SONGS TOP20`，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。
-> - 所有数据通过 GitHub 自动化归档仓库 [VincentZyuApps/billboard-data](https://github.com/VincentZyuApps/billboard-data) 每周定时归档同步。
+> - 支持 [插件本地原生爬取](src/crawler) 或 [GitHub 官方归档仓库](https://github.com/VincentZyuApps/billboard-data) / [jsDelivr CDN](https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data) 静态数据源，每周定时归档同步。
 
 支持 **本地爬取 B 站专栏** + **GitHub/jsDelivr CDN 静态源** 双模混合容灾矩阵，具备智能缓存、出榜时刻智能失效及全量历史回溯能力！
 
@@ -74,27 +74,42 @@
 |---|---|---|---|
 | `enableQuote` | `boolean` | `true` | 💬 是否启用引用回复 |
 | `enableWaitingHint` | `boolean` | `true` | ⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后自动撤回） |
+
+### 🎯 默认榜单设置
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
 | `defaultSource` | `"bilibili" \| "niconico"` | `"bilibili"` | 🎯 默认周榜数据源（未传入 `-s` 参数时默认使用的榜单源） |
 
-### 🌐 数据获取与容灾矩阵 (`dataSources`)
+### 🌐 数据获取与容灾矩阵 (`dataSourceList`)
 
-4 列表格，支持自由开关与拖拽重排优先级。插件将按表格自上而下顺序依次尝试，直至请求成功：
+3 列表格，支持自由开关与拖拽重排优先级。插件将按表格自上而下顺序依次尝试，直至请求成功：
 
 | 列字段 | 类型 | 说明 |
 |---|---|---|
 | `enabled` | `boolean` | ✅ 是否启用本条策略（默认全部开启） |
-| `mode` | `enum` | 模式：`crawler`（本地 B站专栏爬虫）/ `remote`（GitHub/CDN 静态 JSON 源） |
-| `network` | `enum` | 网络模式：`proxy`（走自定义本地代理，未开启代理配置则等价直连）/ `direct`（原生直连） |
-| `url` | `string` | 远程源 Base URL（`crawler` 模式下留空自动忽略） |
+| `mode` | `enum` | 模式：`crawler`（本地 B站专栏爬虫）/ `jsdelivr`（jsDelivr CDN 静态源）/ `github`（GitHub Raw 静态源） |
+| `network` | `enum` | 网络模式：`proxy`（走本地代理）/ `direct`（原生直连）/ `ghproxy`（走 GitHub 公网反代） |
 
 > **默认 7 层预设矩阵**：
-> 1. 本地爬取 + 走代理
-> 2. 本地爬取 + 直连
-> 3. jsDelivr CDN + 走代理 (`https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data`)
-> 4. jsDelivr CDN + 直连 (`https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data`)
-> 5. GitHub Raw + 走反代 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
-> 6. GitHub Raw + 走代理 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
-> 7. GitHub Raw + 直连 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
+> 1. 本地爬取 + 走代理 (`crawler` + `proxy`)
+> 2. 本地爬取 + 直连 (`crawler` + `direct`)
+> 3. jsDelivr CDN + 走代理 (`jsdelivr` + `proxy`)
+> 4. jsDelivr CDN + 直连 (`jsdelivr` + `direct`)
+> 5. GitHub Raw + 走反代 (`github` + `ghproxy`)
+> 6. GitHub Raw + 走代理 (`github` + `proxy`)
+> 7. GitHub Raw + 直连 (`github` + `direct`)
+
+> **注意**：
+> - `ghproxy` 仅在模式为 `github` 时生效；若在 `crawler` 或 `jsdelivr` 行中误选 `ghproxy`，插件内部**自动平滑回退为原生直连**。
+> - 表格下方提供只读锁定的 `customJsdelivrPrefix` 与 `customGithubRawPrefix`（已有 本地爬虫+公网gh代理+本地自定义代理 7层默认容灾兜底）。
+
+### 🍪 B 站爬取设置 (实验性)
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableBilibiliCookie` | `boolean` | `false` | 🧪 是否在爬取 B 站专栏时附带自定义 Cookie（防风控备用） |
+| `bilibiliCookie` | `string` | `""` | 🔑 B站 SESSDATA / Cookie 字符串（仅当开关启用时生效） |
 
 ### 🛡️ 网络代理配置
 

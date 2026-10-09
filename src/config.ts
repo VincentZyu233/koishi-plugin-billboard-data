@@ -18,23 +18,33 @@ export type TakumiDetailedMode = 'standard' | 'simple'
 export type PuppeteerDetailedMode = 'standard' | 'simple'
 export type QQMarkdownDetailedMode = 'card' | 'table'
 
-export type DataSourceMode = 'local' | 'jsdelivr' | 'github' | 'custom'
-export type NetworkMode = 'default' | 'direct' | 'proxy' | 'ghproxy'
+export type DataSourceMode = 'crawler' | 'jsdelivr' | 'github'
+export type NetworkMode = 'direct' | 'proxy' | 'ghproxy'
 export type CacheBackend = 'database' | 'memory'
 
 export interface DataSourceConfig {
   enabled: boolean
   mode: DataSourceMode
   network: NetworkMode
-  url?: string
 }
 
 export interface Config {
   // 消息交互设置
   enableQuote: boolean
   enableWaitingHint: boolean
+
+  // 默认榜单设置 (独立分组)
   defaultSource: BillboardSource
-  dataSources: DataSourceConfig[]
+
+  // 数据源容灾矩阵
+  dataSourceList: DataSourceConfig[]
+  customJsdelivrPrefix: string
+  customGithubRawPrefix: string
+  autoPurgeJsdelivr: boolean
+
+  // 实验性 B 站凭证设置 (移至网络代理上方)
+  enableBilibiliCookie: boolean
+  bilibiliCookie: string
   
   // 网络代理设置
   enableGhProxy: boolean
@@ -52,13 +62,8 @@ export interface Config {
   saveLocalJsonBackup: boolean
   enableColdBootBackfill: boolean
 
-  // 实验性 B 站凭证设置
-  enableBilibiliCookie: boolean
-  bilibiliCookie: string
-
   // 输出格式
   outputFormats: OutputFormat[]
-  autoPurgeJsdelivr: boolean
 
   // 纯文本设置
   textDetailedMode: TextDetailedMode
@@ -102,6 +107,9 @@ export const Config: Schema<Config> = Schema.intersect([
     enableWaitingHint: Schema.boolean()
       .default(true)
       .description('⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后将自动撤回）'),
+  }).description('💬 消息交互设置'),
+
+  Schema.object({
     defaultSource: Schema.union([
       Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜 (B站本土周榜)'),
       Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20 (日本N站周榜)'),
@@ -109,41 +117,58 @@ export const Config: Schema<Config> = Schema.intersect([
       .role('radio')
       .default('bilibili')
       .description('🎯 默认周榜数据源（当指令未显式使用 -s 指定时生效）'),
-  }).description('💬 消息交互设置'),
+  }).description('🎯 默认榜单设置'),
 
   Schema.object({
-    dataSources: Schema.array(Schema.object({
+    dataSourceList: Schema.array(Schema.object({
       enabled: Schema.boolean().default(true).description('是否启用'),
       mode: Schema.union([
-        Schema.const('local' as DataSourceMode).description('🕷️ 本地直接爬取 (Bilibili 专栏)'),
+        Schema.const('crawler' as DataSourceMode).description('🕷️ 本地直接爬取 (Bilibili 专栏)'),
         Schema.const('jsdelivr' as DataSourceMode).description('⚡ jsDelivr CDN 静态归档'),
         Schema.const('github' as DataSourceMode).description('🐙 GitHub Raw 静态源'),
-        Schema.const('custom' as DataSourceMode).description('🌐 自定义静态源 URL 前缀'),
-      ]).role('radio').default('local').description('数据源模式'),
+      ]).role('radio').default('crawler').description('模式'),
       network: Schema.union([
         Schema.const('proxy' as NetworkMode).description('🚪 走本地代理 (需开启全局代理，否则直连)'),
         Schema.const('direct' as NetworkMode).description('🌐 强制直连'),
         Schema.const('ghproxy' as NetworkMode).description('🔗 走 GitHub 公网反代 (仅 GitHub 生效)'),
-        Schema.const('default' as NetworkMode).description('🛡️ 遵循全局默认策略'),
       ]).role('radio').default('direct').description('网络通道'),
-      url: Schema.string().default('').description('自定义 URL 前缀（仅 custom 模式或自定义仓库时填写）'),
     }))
       .role('table')
       .default([
-        { enabled: true, mode: 'local', network: 'proxy', url: '' },
-        { enabled: true, mode: 'local', network: 'direct', url: '' },
-        { enabled: true, mode: 'jsdelivr', network: 'proxy', url: '' },
-        { enabled: true, mode: 'jsdelivr', network: 'direct', url: '' },
-        { enabled: true, mode: 'github', network: 'ghproxy', url: '' },
-        { enabled: true, mode: 'github', network: 'proxy', url: '' },
-        { enabled: true, mode: 'github', network: 'direct', url: '' },
+        { enabled: true, mode: 'crawler', network: 'proxy' },
+        { enabled: true, mode: 'crawler', network: 'direct' },
+        { enabled: true, mode: 'jsdelivr', network: 'proxy' },
+        { enabled: true, mode: 'jsdelivr', network: 'direct' },
+        { enabled: true, mode: 'github', network: 'ghproxy' },
+        { enabled: true, mode: 'github', network: 'proxy' },
+        { enabled: true, mode: 'github', network: 'direct' },
       ])
-      .description('📡 7 级多源与网络通道容灾流水线表格（自上而下依次尝试，ghproxy 仅在 GitHub 生效，若代理开关关闭则自动回退直连）'),
+      .description('📡 7 级多源与网络通道容灾流水线表格（自上而下依次尝试。注意：ghproxy 仅在 GitHub 生效，若 crawler 或 jsdelivr 误选 ghproxy 将自动回退为直连；若代理开关关闭亦自动回退直连）'),
+    customJsdelivrPrefix: Schema.string()
+      .default('https://cdn.jsdelivr.net')
+      .disabled()
+      .description('⚡ jsDelivr CDN 基础前缀（当前默认锁定。已有 本地爬虫+公网gh代理+本地自定义代理 7层默认容灾兜底，如确有特殊镜像需求可联系作者反馈）'),
+    customGithubRawPrefix: Schema.string()
+      .default('https://raw.githubusercontent.com')
+      .disabled()
+      .description('📡 GitHub Raw 基础前缀（当前默认锁定。已有 本地爬虫+公网gh代理+本地自定义代理 7层默认容灾兜底，如确有特殊需求可联系作者反馈）'),
     autoPurgeJsdelivr: Schema.boolean()
       .default(true)
       .experimental()
       .description('⚡ 请求 jsDelivr CDN 前主动调用 Purge 刷新 API（防止读取到旧版边缘缓存）'),
-  }).description('🌐 数据源容灾流水线'),
+  }).description('🌐 数据获取与容灾矩阵'),
+
+  Schema.object({
+    enableBilibiliCookie: Schema.boolean()
+      .default(false)
+      .experimental()
+      .description('🍪 是否在爬取 B 站专栏时携带自定义 Cookie（唯一生效来源为本开关）'),
+    bilibiliCookie: Schema.string()
+      .default('')
+      .role('secret')
+      .experimental()
+      .description('🍪 自定义 Bilibili Cookie（如 SESSDATA 等，可降低高频访客风控风险）'),
+  }).description('🍪 B 站爬取设置 (实验性)'),
 
   Schema.object({
     enableGhProxy: Schema.boolean()
