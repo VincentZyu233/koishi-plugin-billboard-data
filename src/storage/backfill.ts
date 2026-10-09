@@ -1,7 +1,7 @@
 import { Context } from 'koishi'
 import type { Config, BillboardSource } from '../config'
 import type { IndexData, WeeklyDetail } from '../types'
-import type { CacheService } from '../database/service'
+import type { CacheService } from './cache'
 import type { LocalBackupService } from './backup'
 
 export class BackfillService {

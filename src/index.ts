@@ -4,8 +4,8 @@ import { Config as ConfigSchema } from './config'
 import { BillboardService } from './service'
 import { registerCommands } from './commands'
 import { applyBroadcast } from './broadcast'
-import { applyDatabaseModel } from './database/schema'
-import { BackfillService } from './sync/backfill'
+import { applyDatabaseModel } from './storage/schema'
+import { BackfillService } from './storage/backfill'
 
 export const name = 'billboard-data'
 export const inject = {

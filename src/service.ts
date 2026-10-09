@@ -2,8 +2,8 @@ import { Context } from 'koishi'
 import type { Config, BillboardSource, DataSourceConfig } from './config'
 import type { IndexData, WeeklyDetail, IssueMeta } from './types'
 import { CrawlerManager } from './crawler'
-import { CacheService } from './database/service'
-import { LocalBackupService } from './sync/backup'
+import { CacheService } from './storage/cache'
+import { LocalBackupService } from './storage/backup'
 
 export class BillboardService {
   private crawlerManager: CrawlerManager
