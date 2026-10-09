@@ -96,7 +96,7 @@ export const usage = `
 
   <!-- 折叠区域 2 -->
   <details style="${detailsStyle}">
-    <summary style="${summaryStyle}"><b style="color: #FB7299;">🕷️ 本地爬虫、7 层容灾矩阵与智能缓存</b></summary>
+    <summary style="${summaryStyle}"><b style="color: #00AEEC;">🕷️ 本地爬虫、7 层容灾矩阵与智能缓存</b></summary>
     <div style="${detailsBodyStyle}">
       <p style="margin: 4px 0;"><b>🕷️ 本地原生爬取：</b>内置轻量级纯 TypeScript 爬虫，可直接解析 <a href="https://space.bilibili.com/3493269493907727/article" target="_blank" style="color: #00AEEC; text-decoration: underline;">@Bili-Board_Atel</a> 与 <a href="https://space.bilibili.com/5937105/article" target="_blank" style="color: #FB7299; text-decoration: underline;">@Elvansphere</a> 的 B站动态专栏，无需等待 GitHub Action 定时归档即可秒查最新榜单！</p>
       <p style="margin: 4px 0;"><b>🛡️ 7 层容灾流水线 (dataSourceList)：</b>预设 3 列表格（enabled / mode / network），已有 本地爬虫+公网gh代理+本地自定义代理 7层默认容灾兜底。当非 GitHub 模式误选 ghproxy 时将自动平滑回退为原生直连。</p>
@@ -108,7 +108,7 @@ export const usage = `
 
   <!-- 折叠区域 3 -->
   <details style="${detailsStyle}">
-    <summary style="${summaryStyle}"><b style="color: #ff8a00;">⏱️ 渲染耗时、尝试源统计与等待提示</b></summary>
+    <summary style="${summaryStyle}"><b style="color: #00AEEC;">⏱️ 渲染耗时、尝试源统计与等待提示</b></summary>
     <div style="${detailsBodyStyle}">
       <p style="margin: 4px 0;"><b>⏳ 等待提示与自动撤回：</b>开启 <code>enableWaitingHint</code> 后，发起周榜指令时会立刻发送「正在获取并渲染周榜数据，请稍候...」，待最终文本或图片发送完成后，将自动撤回该提示消息。</p>
       <p style="margin: 4px 0;"><b>📊 统计指标展示：</b>提供 4 项独立的 <code>showRenderInfo</code> 开关。开启后会在输出结果后追加展示：
@@ -118,7 +118,7 @@ export const usage = `
 
   <!-- 折叠区域 4 -->
   <details style="${detailsStyle}">
-    <summary style="${summaryStyle}"><b style="color: #2f855a;">📢 每周新榜自动广播推送 (Cron / 轮询)</b></summary>
+    <summary style="${summaryStyle}"><b style="color: #00AEEC;">📢 每周新榜自动广播推送 (Cron / 轮询)</b></summary>
     <div style="${detailsBodyStyle}">
       <p style="margin: 4px 0;"><b>🔔 自动检测与 Cron 调度：</b>支持为每个群组单独配置专属 <code>cron</code> 定时表达式（基于 Koishi <code>cron</code> 可选服务），同时也支持传统的 <code>checkInterval</code> 周期性轮询。</p>
       <p style="margin: 4px 0;"><b>🎯 全局推送源与目标表格：</b>在表格上方通过 <code>broadcastSources</code> 全局多选榜单源（B站 / N站），下方 <code>broadcastTargets</code> 仅需配置平台、Bot selfId（留空匹配所有）、群号与专属 Cron，简洁高效！</p>
