@@ -2,7 +2,6 @@ const pkg = require('../package.json')
 
 const KOISHI_LOGO_BASE64 = 'data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAABU0lEQVR42p2UQSsFYRSGnxnqLuytKWKpKFkQNsS%2FsOHPWPADLCmxU5S7UzYWNrJR7lYiRF2FeWzOMKZ7mXHqNNP5vvP2nu%2B850CY2lP4X1K31ZbaDm%2BpO%2Bpyp5wfAXVEPfRvO1JHf4AVQGbUh7j4EZ4VkrNCXPVRnf3CUBN1SH2KC28VGOV3ntRhNclZHdcAKYM11QR1oVBOXctzFlNgBTC8qmXxPQEegbVeYApIgJT6tg%2F0AdMp0B%2FBpCabK2AAmAAa%2F2GRBft1oBFPkqTAba7LCiAfQC9wClwAY1HJHepuiO29Yrsf1Dn1uiDU3RTYCtTkl1Leg8k9MB4NGgReI28rV3azgyCz0og01Xl1Uz1QX8uCTELm3UbkTF1VJ9Wr0tn3iBSGdjYG0XivE3VN3VD31PM4a3cc2tIGGI0VkTO7rLxGuiy25ejmjfqsvkSXui62TxaK03td4FXTAAAAAElFTkSuQmCC'
 
-// 视觉样式：对齐 sky-renwu-weibo 与 60s 插件的高质感圆角卡片体系，结合 B 站经典蓝粉主题与明暗主题自适应
 const containerStyle = [
   'margin: 12px 0;',
   'padding: 16px 20px;',
@@ -66,9 +65,6 @@ export const usage = `
       <img src="https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white" alt="Gitee">
     </a>
     <br>
-    <!-- <a href="https://forum.koishi.xyz/t/topic/xxxxx" target="_blank">
-      <img src="https://img.shields.io/badge/Koishi%20Forum-xxxxx-5546A3?style=for-the-badge&logo=${KOISHI_LOGO_BASE64}&logoColor=white" alt="Koishi Forum">
-    </a> -->
     <a href="https://qm.qq.com/q/ZHj33L5cuC" target="_blank">
       <img src="https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white" alt="QQ群">
     </a>
@@ -77,8 +73,6 @@ export const usage = `
   <h2 style="margin: 18px 0 8px 0; font-size: 16px; border-bottom: 1px solid var(--k-color-divider, rgba(127, 127, 127, 0.2)); padding-bottom: 6px;">
     💬 交流反馈
   </h2>
-  <p style="margin: 4px 0;">🐛 Bug 反馈 / 💡 建议 / 👨‍💻 插件开发交流，欢迎加群：</p>
-  <p style="margin: 4px 0;"><del>💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b>259248174</b>   🎉（这个群G了）</del></p> 
   <p style="margin: 4px 0;">💬 插件使用问题 / 🐛 Bug反馈 / 👨‍💻 插件开发交流，欢迎加入QQ群：<b style="color: #12B7F5;">1085190201</b> 🎉</p>
   <p style="margin: 4px 0;">💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
@@ -98,19 +92,18 @@ export const usage = `
       <p style="margin: 4px 0;"><b>🎨 Puppeteer 网页出图：</b>高保真海报级渲染，需要 Koishi 加载 <code>puppeteer</code> 服务。能完美呈现圆角、多重阴影与微缩歌曲封面。</p>
       <p style="margin: 4px 0;"><b>📊 QQ 原生 Markdown：</b>在 QQ 平台原生下发图文卡片与表格，支持蓝字外部跳转至 B 站原专栏或原视频。支持卡片流式排版与紧凑表格排版切换。</p>
       <p style="margin: 4px 0;"><b>📤 多选输出模式：</b>可在「消息输出格式」勾选列表中任意勾选需要的格式（纯文本、Takumi、Puppeteer、QQ Markdown），满足不同群聊场景需要。</p>
-      <blockquote style="margin: 10px 0 4px 0; padding: 8px 12px; border-left: 4px solid #00AEEC; border-radius: 4px; background: rgba(0, 174, 236, 0.06);">
-        <b>💡 详细度切换：</b>纯文本、Takumi、Puppeteer 和 QQ Markdown 现均支持单选模式切换，可在完整详细看板与轻量精简排版之间自由选择。
-      </blockquote>
     </div>
   </details>
 
   <!-- 折叠区域 2 -->
   <details style="${detailsStyle}">
-    <summary style="${summaryStyle}"><b style="color: #FB7299;">📡 多源拉取、代理加速与 CDN 缓存说明</b></summary>
+    <summary style="${summaryStyle}"><b style="color: #FB7299;">🕷️ 本地爬虫、7 层容灾矩阵与智能缓存</b></summary>
     <div style="${detailsBodyStyle}">
-      <p style="margin: 4px 0;"><b>🌐 多源自动灾备：</b>默认内置 4 个数据源地址（按顺序尝试：jsDelivr CDN、GitHub Raw 以及主备镜像）。当首选节点受阻或延迟过高时，自动回退到备用镜像。</p>
-      <p style="margin: 4px 0;"><b>⚡ autoPurgeJsdelivr（主动刷新 CDN）：</b>开启后，请求 jsDelivr 前会自动发起 purge 请求，避免拉取到过期缓存的旧榜单数据。</p>
-      <p style="margin: 4px 0;"><b>🛡️ 网络代理配置：</b>支持 <code>ghProxyPrefix</code>（如 <code>https://gh-proxy.org/</code>）与自定义本地代理（如 <code>http://127.0.0.1:7890</code>），国内服务器亦可畅快稳定拉取。</p>
+      <p style="margin: 4px 0;"><b>🕷️ 本地原生爬取：</b>内置轻量级纯 TypeScript 爬虫，可直接解析 @Bili-Board_Atel 与 @Elvansphere 的 B站动态专栏，无需等待 GitHub Action 定时归档即可秒查最新榜单！</p>
+      <p style="margin: 4px 0;"><b>🛡️ 7 层容灾流水线：</b>预设 7 项多级通道（本地爬虫代理 -> 本地爬虫直连 -> jsDelivr代理 -> jsDelivr直连 -> GitHub反代 -> GitHub代理 -> GitHub直连）。当任一环节受阻时自上而下自动无缝降级。</p>
+      <p style="margin: 4px 0;"><b>💾 Database / 内存智能缓存：</b>支持通过 Koishi <code>database</code> 服务或纯内存 Map 持久化周榜数据（默认缓存 10 小时）。</p>
+      <p style="margin: 4px 0;"><b>🕒 周三 19:00 智能失效：</b>当跨越每周三 19:00（出榜时间节点）时，会自动令最新一期缓存失效，确保第一时间抓取当周新鲜榜单！</p>
+      <p style="margin: 4px 0;"><b>❄️ 冷启动回溯与本地镜像：</b>开启 <code>enableColdBootBackfill</code> 时，首次启动可自动按稳定链路将 GitHub 历史全量数据同步入库；开启 <code>saveLocalJsonBackup</code> 会在 <code>data/billboard-data/</code> 额外保存一份本地 JSON 作为运维查阅 bonus。</p>
     </div>
   </details>
 
@@ -121,15 +114,14 @@ export const usage = `
       <p style="margin: 4px 0;"><b>⏳ 等待提示与自动撤回：</b>开启 <code>enableWaitingHint</code> 后，发起周榜指令时会立刻发送「正在获取并渲染周榜数据，请稍候...」，待最终文本或图片发送完成后，将自动撤回该提示消息。</p>
       <p style="margin: 4px 0;"><b>📊 统计指标展示：</b>提供 4 项独立的 <code>showRenderInfo</code> 开关。开启后会在输出结果后追加展示：
         <code>⏱️ API 请求: xx ms (尝试源: x) | 🎨/⚡ 渲染: xx ms | 📊 总耗时: xx ms</code>，精准反映拉取与渲染性能。</p>
-      <p style="margin: 4px 0;"><b>➖ 水平分割线：</b>纯文本、QQ Markdown 以及图片文本尾部均带有分割线隔离，视觉层次更清晰。</p>
     </div>
   </details>
 
   <!-- 折叠区域 4 -->
   <details style="${detailsStyle}">
-    <summary style="${summaryStyle}"><b style="color: #2f855a;">📢 每周新榜自动广播推送</b></summary>
+    <summary style="${summaryStyle}"><b style="color: #2f855a;">📢 每周新榜自动广播推送 (Cron / 轮询)</b></summary>
     <div style="${detailsBodyStyle}">
-      <p style="margin: 4px 0;"><b>🔔 自动检测：</b>启用 <code>enableBroadcast</code> 后，插件将每隔 <code>checkInterval</code> 分钟检查是否有最新一期周榜发布，新榜出炉时自动广播。</p>
+      <p style="margin: 4px 0;"><b>🔔 自动检测与 Cron 调度：</b>支持为每个群组单独配置专属 <code>cron</code> 定时表达式（基于 Koishi <code>cron</code> 可选服务），同时也支持传统的 <code>checkInterval</code> 周期性轮询。</p>
       <p style="margin: 4px 0;"><b>🎯 目标广播表格：</b>在 <code>broadcastTargets</code> 中配置目标群号或频道 ID，并可为每个目标独立选择推送的数据源（B站 / N站）。<code>selfId</code> 留空时会自动向该平台所有已在线的机器人广播。</p>
     </div>
   </details>
@@ -142,7 +134,7 @@ bb -s nico        # 查看日本 N站 VOCALOID TOP20 最新周榜
 bb -n 20          # 展示 TOP 20
 bb.history        # 查看近期收录的周榜期数总览（支持 -s 参数）
 bb.search &lt;歌名&gt;  # 检索某首歌曲在近期周榜中的排位战绩（支持 -s 参数）
-bb.reload         # 管理员强制刷新远程索引缓存
+bb.reload         # 管理员强制刷新数据缓存
 bb.help           # 查看周榜详细帮助与选项说明</code></pre>
 
 </div>

@@ -21,18 +21,24 @@
 1. **Bili Board 术力口周榜**（B站本土术力口周榜，数据来源于 @Bili-Board_Atel）
 2. **ニコニコ VOCALOID SONGS TOP20**（日本 Niconico 与 Billboard JAPAN 联合官方周榜，数据同步于 @Elvansphere）
 
-数据源来自于由 GitHub Actions 自动化每周定时归档的公开数据仓库 [billboard-data](https://github.com/VincentZyuApps/billboard-data)。
+支持 **本地爬取 B 站专栏** + **GitHub/jsDelivr CDN 静态源** 双模混合容灾矩阵，具备智能缓存、出榜时刻智能失效及全量历史回溯能力！
 
 ---
 
 ## 🌟 功能特性
 
-- **双源合一**：B站周榜与日本N站Billboard TOP20官方周榜无缝聚合。
-- **即开即用**：零数据库配置，直接基于 jsDelivr 全球加速 CDN 读取静态 JSON。
-- **两级缓存**：内置内存与单期永久缓存，响应毫秒级，无多余网络开销。
-- **支持历史回溯**：不仅可看最新一期，还可查询任意历史期数。
-- **曲目反向检索**：支持搜索任意歌曲在近期周榜中的上榜记录与最高名次（支持 -s 切换源）。
-- **新榜自动广播**：支持多目标独立订阅 B站周榜 / N站周榜发布提醒。
+- **双源合一**：B站本土周榜与日本N站Billboard TOP20官方周榜无缝聚合。
+- **本地专栏爬虫**：纯 TS + `ctx.http` 本地直连/代理爬取 B 站专栏动态，配合智能跨页算法，免除对第三方仓库更新的强依赖。
+- **7 层容灾矩阵**：默认预设 `本地爬虫(代理) ➔ 本地爬虫(直连) ➔ jsDelivr(代理) ➔ jsDelivr(直连) ➔ GitHub(反代) ➔ GitHub(代理) ➔ GitHub(直连)` 自由拖拽排序。
+- **智能两级缓存**：
+  - 支持 **Koishi Database**（持久化）与 **纯内存 Map**（轻量级）后端一键切换。
+  - 自定义缓存过期时间（默认 600 分钟 / 10 小时；`<=0` 穿透禁用）。
+  - **周三 19:00 智能出榜失效**：识别最新一期，在每周三 19:00 术力口官方出榜时刻自动标记过期，兼顾性能与时效。
+- **冷启动历史回溯 (Backfill)**：初次使用或空数据时，后台自动从静态归档拉取历史全量周榜（>120 期）数据。
+- **本地 JSON 镜像备份**：查询成功后自动镜像写入 `data/billboard-data/`，便于离线分析与二次开发。
+- **曲目反向检索**：支持搜索任意歌曲在近期周榜中的上榜记录与最高名次（支持 `-s` 切换源）。
+- **多种渲染管线**：纯文本、Takumi WASM 高清出图、Puppeteer 网页海报、QQ 原生 Markdown 卡片/表格。
+- **新榜自动广播**：支持多目标独立订阅 B站周榜 / N站周榜发布提醒，支持单目标专属 Cron 定时表达式。
 
 ---
 
@@ -68,21 +74,51 @@
 | `enableWaitingHint` | `boolean` | `true` | ⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后自动撤回） |
 | `defaultSource` | `"bilibili" \| "niconico"` | `"bilibili"` | 🎯 默认周榜数据源（未传入 `-s` 参数时默认使用的榜单源） |
 
-### 🌐 数据源设置
+### 🌐 数据获取与容灾矩阵 (`dataSources`)
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `dataSources` | `string[]` | jsDelivr + GitHub Raw | 📡 数据源列表（按顺序从前往后依次尝试请求） |
-| `autoPurgeJsdelivr` | `boolean` | `true` | ⚡ 请求 jsDelivr CDN 前主动调用 Purge 刷新 API（实验性，防止边缘缓存延迟） |
+4 列表格，支持自由开关与拖拽重排优先级。插件将按表格自上而下顺序依次尝试，直至请求成功：
+
+| 列字段 | 类型 | 说明 |
+|---|---|---|
+| `enabled` | `boolean` | ✅ 是否启用本条策略（默认全部开启） |
+| `mode` | `enum` | 模式：`crawler`（本地 B站专栏爬虫）/ `remote`（GitHub/CDN 静态 JSON 源） |
+| `network` | `enum` | 网络模式：`proxy`（走自定义本地代理，未开启代理配置则等价直连）/ `direct`（原生直连） |
+| `url` | `string` | 远程源 Base URL（`crawler` 模式下留空自动忽略） |
+
+> **默认 7 层预设矩阵**：
+> 1. 本地爬取 + 走代理
+> 2. 本地爬取 + 直连
+> 3. jsDelivr CDN + 走代理 (`https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data`)
+> 4. jsDelivr CDN + 直连 (`https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data`)
+> 5. GitHub Raw + 走反代 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
+> 6. GitHub Raw + 走代理 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
+> 7. GitHub Raw + 直连 (`https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data`)
 
 ### 🛡️ 网络代理配置
 
-> 请求时插件将对每个数据源依次自动尝试：**gh-proxy 镜像加速**（若配置且为 GitHub 域名） ➔ **自定义代理**（若配置） ➔ **直连访问**。配置项留空即表示跳过该代理方式。
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableGhProxy` | `boolean` | `true` | 🔗 是否启用 GitHub 公网反向代理加速（仅对 GitHub 域名生效） |
+| `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀 |
+| `enableCustomProxy` | `boolean` | `false` | 🌐 是否启用自定义本地代理服务器 |
+| `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5） |
+
+### 🗄️ 缓存与同步设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `ghProxyPrefix` | `string` | `"https://gh-proxy.org/"` | 🔗 公网 GitHub 代理前缀（留空表示不使用；若填写且为 GitHub 域名，优先加速访问） |
-| `customProxyUrl` | `string` | `"http://127.0.0.1:7890"` | 🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用） |
+| `cacheStorage` | `"database" \| "memory"` | `"database"` | 💾 缓存存储后端（推荐 `database`，无可用数据库服务时自动平滑降级为内存） |
+| `cacheTtlMinutes` | `number` | `600` | ⏱️ 缓存有效期（分钟，默认 10 小时；小于等于 0 表示禁用缓存） |
+| `smartWednesdayExpire` | `boolean` | `true` | 🕒 每周三 19:00 术力口出榜时刻智能让最新一期缓存失效 |
+| `enableBackfill` | `boolean` | `true` | 📥 冷启动历史数据全量回溯（检测到历史数据缺失时后台自动拉取补全） |
+| `enableLocalBackup` | `boolean` | `true` | 💽 本地 JSON 镜像备份（自动在 `data/billboard-data/` 目录保存离线副本） |
+
+### 🍪 B站爬虫实验项 (可选)
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `enableBilibiliCookie` | `boolean` | `false` | 🧪 是否在爬取 B 站专栏时附带自定义 Cookie（防风控备用） |
+| `bilibiliCookie` | `string` | `""` | 🔑 B站 SESSDATA / Cookie 字符串（仅当开关启用时生效） |
 
 ### 📤 消息输出格式
 
@@ -138,8 +174,8 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | `enableBroadcast` | `boolean` | `false` | 🔔 是否启用每周新榜自动广播提醒 |
-| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号、源多选及启用开关） |
-| `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测周期（分钟） |
+| `broadcastTargets` | `BroadcastTarget[]` | 默认包含 OneBot 群聊 | 🎯 广播推送目标表格（包含 platform、Bot selfId、群号、源多选、独立 Cron 与启用开关） |
+| `checkInterval` | `number` | `15` | ⏱️ 新榜自动检测全局轮询周期（分钟） |
 
 #### 🎯 广播目标表格 (`broadcastTargets`) 说明
 
@@ -150,14 +186,8 @@
 | `selfId` | `string` | 🤖 Bot 自身账号 ID。**留空时向该 platform 下所有满足条件的在线 Bot 发送**；填写时精确匹配 |
 | `channelId` | `string` | 📡 目标群号或频道 ID，OneBot 填真实 QQ 群号 |
 | `sources` | `string[]` | 📡 推送数据源多选（`bilibili` / `niconico`，默认全部推送） |
+| `cron` | `string` | ⏰ 目标专属 Cron 定时表达式（留空则遵循全局轮询周期 `checkInterval`） |
 | `enabled` | `boolean` | ✅ 独立启用开关，关闭后跳过该条目标 |
-
-> **默认预设项**：
-> - 备注: `awa测试群`
-> - 平台: `onebot`
-> - 群号 / 频道 ID: `958366323`
-> - selfId: 留空（自动向该平台全部满足条件的在线 Bot 广播）
-> - 启用: `true`
 
 ---
 

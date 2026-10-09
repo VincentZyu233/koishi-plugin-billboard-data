@@ -1,10 +1,14 @@
 import { Context } from 'koishi'
-import type { Config, BillboardSource } from './config'
+import type { Config, BillboardSource, DataSourceConfig } from './config'
 import type { IndexData, WeeklyDetail, IssueMeta } from './types'
+import { CrawlerManager } from './crawler'
+import { CacheService } from './database/service'
+import { LocalBackupService } from './sync/backup'
 
 export class BillboardService {
-  private indexCaches = new Map<BillboardSource, { data: IndexData; time: number }>()
-  private detailCaches = new Map<BillboardSource, Map<number, WeeklyDetail>>()
+  private crawlerManager: CrawlerManager
+  public cacheService: CacheService
+  public backupService: LocalBackupService
 
   private purgedUrls = new Set<string>()
 
@@ -12,8 +16,9 @@ export class BillboardService {
   public lastAttemptSourcesCount = 1
 
   constructor(private ctx: Context, private config: Config) {
-    this.detailCaches.set('bilibili', new Map())
-    this.detailCaches.set('niconico', new Map())
+    this.crawlerManager = new CrawlerManager(ctx, config)
+    this.cacheService = new CacheService(ctx, config)
+    this.backupService = new LocalBackupService(ctx, config)
   }
 
   private isGitHubUrl(url: string): boolean {
@@ -35,126 +40,214 @@ export class BillboardService {
       await this.ctx.http.get(purgeUrl, { timeout: 5000 })
       this.ctx.logger('billboard').debug(`⚡ 成功触发 jsDelivr purge 刷新: ${purgeUrl}`)
     } catch (err: any) {
-      this.ctx.logger('billboard').debug(`⚡ 触发 jsDelivr purge 跳过/忽略: ${err.message || err}`)
+      this.ctx.logger('billboard').debug(`⚡ 触发 jsDelivr purge 跳过: ${err.message || err}`)
     }
   }
 
-  private async fetchWithFallback<T>(path: string): Promise<T> {
+  // 核心流水线调度器：遍历 dataSources 表格
+  private async executePipeline<T>(
+    operation: {
+      type: 'static'
+      path: string
+    } | {
+      type: 'crawler_latest'
+      source: BillboardSource
+    } | {
+      type: 'crawler_issue'
+      source: BillboardSource
+      issue: number
+    }
+  ): Promise<T> {
     const startTime = Date.now()
-    const sources = this.config.dataSources && this.config.dataSources.length > 0
-      ? this.config.dataSources
+    const pipeline: DataSourceConfig[] = this.config.dataSources && this.config.dataSources.length > 0
+      ? this.config.dataSources.filter(s => s.enabled)
       : [
-          'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
-          'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data',
+          { enabled: true, mode: 'local', network: 'proxy', url: '' },
+          { enabled: true, mode: 'local', network: 'direct', url: '' },
+          { enabled: true, mode: 'jsdelivr', network: 'proxy', url: '' },
+          { enabled: true, mode: 'jsdelivr', network: 'direct', url: '' },
+          { enabled: true, mode: 'github', network: 'ghproxy', url: '' },
+          { enabled: true, mode: 'github', network: 'proxy', url: '' },
+          { enabled: true, mode: 'github', network: 'direct', url: '' },
         ]
 
     const logger = this.ctx.logger('billboard')
     let lastErr: any = null
     let attempted = 0
 
-    for (let sIdx = 0; sIdx < sources.length; sIdx++) {
-      attempted = sIdx + 1
-      const base = sources[sIdx].replace(/\/+$/, '')
-      const rawUrl = `${base}/${path.replace(/^\/+/, '')}`
+    for (let i = 0; i < pipeline.length; i++) {
+      attempted = i + 1
+      const step = pipeline[i]
 
-      await this.purgeJsdelivr(rawUrl)
+      // 1. 如果是本地爬虫
+      if (step.mode === 'local') {
+        if (operation.type === 'static') {
+          continue
+        }
 
-      const attempts: { desc: string; url: string; options: { timeout: number; proxy?: string } }[] = []
+        const proxy = (step.network === 'proxy' && this.config.enableCustomProxy && this.config.customProxyUrl?.trim())
+          ? this.config.customProxyUrl.trim()
+          : undefined
 
-      if (this.config.ghProxyPrefix?.trim() && this.isGitHubUrl(rawUrl)) {
-        const prefix = this.config.ghProxyPrefix.trim().replace(/\/+$/, '')
-        attempts.push({
-          desc: 'gh-proxy 镜像加速',
-          url: `${prefix}/${rawUrl}`,
-          options: { timeout: 8000 },
-        })
-      }
-
-      if (this.config.customProxyUrl?.trim()) {
-        attempts.push({
-          desc: '自定义本地代理',
-          url: rawUrl,
-          options: { timeout: 8000, proxy: this.config.customProxyUrl.trim() },
-        })
-      }
-
-      attempts.push({
-        desc: '直连访问',
-        url: rawUrl,
-        options: { timeout: 8000 },
-      })
-
-      for (const attempt of attempts) {
         try {
-          const res = await this.ctx.http.get<T>(attempt.url, attempt.options)
+          let detail: WeeklyDetail
+          if (operation.type === 'crawler_latest') {
+            detail = await this.crawlerManager.fetchLatest(operation.source, proxy)
+          } else {
+            detail = await this.crawlerManager.fetchByIssue(operation.source, operation.issue, proxy)
+          }
+
           this.lastApiDurationMs = Date.now() - startTime
           this.lastAttemptSourcesCount = attempted
-          return res
+          return detail as unknown as T
         } catch (err: any) {
           lastErr = err
-          logger.warn(`数据源 [${sIdx + 1}/${sources.length}] 尝试 [${attempt.desc}] 失败 (${attempt.url}): ${err.message || err}`)
+          logger.warn(`本地爬虫 [${step.network === 'proxy' ? '代理' : '直连'}] 抓取失败: ${err.message || err}`)
+          continue
         }
+      }
+
+      // 2. 如果是静态源 (jsdelivr, github, custom)
+      let baseUrl = ''
+      if (step.mode === 'jsdelivr') {
+        baseUrl = step.url?.trim() || 'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data'
+      } else if (step.mode === 'github') {
+        baseUrl = step.url?.trim() || 'https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data'
+      } else {
+        baseUrl = step.url?.trim() || ''
+      }
+
+      if (!baseUrl) continue
+
+      let targetPath = ''
+      if (operation.type === 'static') {
+        targetPath = operation.path
+      } else if (operation.type === 'crawler_issue') {
+        targetPath = `${operation.source}/weekly/issue_${operation.issue}.json`
+      } else {
+        targetPath = `${operation.source}/index.json`
+      }
+
+      const fullUrl = `${baseUrl.replace(/\/+$/, '')}/${targetPath.replace(/^\/+/, '')}`
+      await this.purgeJsdelivr(fullUrl)
+
+      let requestUrl = fullUrl
+      let requestProxy: string | undefined
+
+      if (step.network === 'ghproxy' && this.isGitHubUrl(fullUrl)) {
+        if (this.config.enableGhProxy && this.config.ghProxyPrefix?.trim()) {
+          const prefix = this.config.ghProxyPrefix.trim().replace(/\/+$/, '')
+          requestUrl = `${prefix}/${fullUrl}`
+        }
+      } else if (step.network === 'proxy') {
+        if (this.config.enableCustomProxy && this.config.customProxyUrl?.trim()) {
+          requestProxy = this.config.customProxyUrl.trim()
+        }
+      }
+
+      try {
+        const httpOptions: any = { timeout: 10000 }
+        if (requestProxy) httpOptions.proxy = requestProxy
+
+        const res = await this.ctx.http.get<any>(requestUrl, httpOptions)
+
+        if (operation.type === 'crawler_latest') {
+          const issues = res.issues || []
+          if (issues.length === 0) throw new Error('静态源 index.json 为空')
+          const latestMeta = issues[0]
+          const detailRel = latestMeta.path.replace(/^\/+/, '')
+          const detailUrl = `${baseUrl.replace(/\/+$/, '')}/${operation.source}/${detailRel}`
+
+          let reqDetailUrl = detailUrl
+          if (step.network === 'ghproxy' && this.isGitHubUrl(detailUrl) && this.config.enableGhProxy && this.config.ghProxyPrefix?.trim()) {
+            reqDetailUrl = `${this.config.ghProxyPrefix.trim().replace(/\/+$/, '')}/${detailUrl}`
+          }
+
+          const detailRes = await this.ctx.http.get<WeeklyDetail>(reqDetailUrl, httpOptions)
+          detailRes.source = operation.source
+          this.lastApiDurationMs = Date.now() - startTime
+          this.lastAttemptSourcesCount = attempted
+          return detailRes as unknown as T
+        }
+
+        if (operation.type === 'crawler_issue') {
+          res.source = operation.source
+        }
+
+        this.lastApiDurationMs = Date.now() - startTime
+        this.lastAttemptSourcesCount = attempted
+        return res as T
+      } catch (err: any) {
+        lastErr = err
+        logger.warn(`静态源 [${step.mode}:${step.network}] 请求失败 (${requestUrl}): ${err.message || err}`)
       }
     }
 
     this.lastApiDurationMs = Date.now() - startTime
     this.lastAttemptSourcesCount = attempted
-    throw new Error(`所有配置的数据源及代理策略均请求失败: ${lastErr?.message || lastErr}`)
+    throw new Error(`所有配置的数据源及网络策略均请求失败: ${lastErr?.message || lastErr}`)
   }
 
   clearCache() {
-    this.indexCaches.clear()
-    this.detailCaches.get('bilibili')?.clear()
-    this.detailCaches.get('niconico')?.clear()
+    this.cacheService.clear()
     this.purgedUrls.clear()
   }
 
-  async getIndex(source: BillboardSource, force = false): Promise<IndexData> {
-    const now = Date.now()
-    const cached = this.indexCaches.get(source)
-    if (!force && cached && now - cached.time < 600000) {
-      return cached.data
-    }
-
-    const data = await this.fetchWithFallback<IndexData>(`${source}/index.json`)
+  async getIndex(source: BillboardSource): Promise<IndexData> {
+    const data = await this.executePipeline<IndexData>({
+      type: 'static',
+      path: `${source}/index.json`,
+    })
     data.source = source
-    this.indexCaches.set(source, { data, time: now })
+    this.backupService.saveIndex(source, data)
     return data
   }
 
   async getWeekly(source: BillboardSource, issue: number, force = false): Promise<WeeklyDetail> {
-    const sourceCache = this.detailCaches.get(source) || new Map<number, WeeklyDetail>()
-    if (!force && sourceCache.has(issue)) {
-      this.lastApiDurationMs = 0
-      this.lastAttemptSourcesCount = 1
-      return sourceCache.get(issue)!
+    if (!force) {
+      const cached = await this.cacheService.get(source, issue, false)
+      if (cached) {
+        this.lastApiDurationMs = 0
+        this.lastAttemptSourcesCount = 1
+        return cached
+      }
     }
 
-    const index = await this.getIndex(source, force)
-    const issueMeta = index.issues.find(it => it.issue === issue)
-    if (!issueMeta) {
-      throw new Error(`未在 ${source} 数据源中找到第 ${issue} 期周榜数据`)
-    }
+    const detail = await this.executePipeline<WeeklyDetail>({
+      type: 'crawler_issue',
+      source,
+      issue,
+    })
 
-    const relativePath = issueMeta.path.replace(/^\/+/, '')
-    const fullPath = `${source}/${relativePath}`
-
-    const data = await this.fetchWithFallback<WeeklyDetail>(fullPath)
-    data.source = source
-    sourceCache.set(issue, data)
-    this.detailCaches.set(source, sourceCache)
-    return data
+    detail.source = source
+    await this.cacheService.set(source, issue, detail, false)
+    this.backupService.saveIssue(source, issue, detail)
+    return detail
   }
 
-  async getLatest(source: BillboardSource): Promise<{ meta: IssueMeta; detail: WeeklyDetail }> {
-    const index = await this.getIndex(source)
-    if (!index.issues || index.issues.length === 0) {
-      throw new Error(`未获取到 ${source} 的任何周榜数据`)
+  async getLatest(source: BillboardSource, force = false): Promise<{ meta: IssueMeta; detail: WeeklyDetail }> {
+    const detail = await this.executePipeline<WeeklyDetail>({
+      type: 'crawler_latest',
+      source,
+    })
+
+    detail.source = source
+    await this.cacheService.set(source, detail.issue, detail, true)
+    this.backupService.saveIssue(source, detail.issue, detail)
+
+    const meta: IssueMeta = {
+      issue: detail.issue,
+      type: detail.type || 'weekly',
+      opus_id: detail.opus_id || '',
+      date: detail.date,
+      week: detail.week,
+      title: detail.title,
+      total_ranked: detail.total_ranked || (detail.items ? detail.items.length : 0),
+      source_url: detail.source_url || '',
+      path: `weekly/issue_${detail.issue}.json`,
     }
 
-    const latestMeta = index.issues[0]
-    const detail = await this.getWeekly(source, latestMeta.issue)
-    return { meta: latestMeta, detail }
+    return { meta, detail }
   }
 
   async searchSong(source: BillboardSource, keyword: string, checkRecentCount = 20): Promise<{

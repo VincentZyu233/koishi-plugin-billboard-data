@@ -9,8 +9,8 @@ export function registerReloadCommand(ctx: Context, config: Config, service: Bil
     .action(async ({ session }) => {
       try {
         service.clearCache()
-        const biliIndex = await service.getIndex('bilibili', true)
-        const nicoIndex = await service.getIndex('niconico', true)
+        const biliIndex = await service.getIndex('bilibili')
+        const nicoIndex = await service.getIndex('niconico')
         await sendReply(
           session,
           config,

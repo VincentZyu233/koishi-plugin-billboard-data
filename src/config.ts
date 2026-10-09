@@ -7,6 +7,7 @@ export interface BroadcastTarget {
   channelId: string
   sources: BillboardSource[]
   enabled: boolean
+  cron?: string
 }
 
 export type OutputFormat = 'text' | 'takumi' | 'puppeteer' | 'qq_markdown'
@@ -17,19 +18,52 @@ export type TakumiDetailedMode = 'standard' | 'simple'
 export type PuppeteerDetailedMode = 'standard' | 'simple'
 export type QQMarkdownDetailedMode = 'card' | 'table'
 
+export type DataSourceMode = 'local' | 'jsdelivr' | 'github' | 'custom'
+export type NetworkMode = 'default' | 'direct' | 'proxy' | 'ghproxy'
+export type CacheBackend = 'database' | 'memory'
+
+export interface DataSourceConfig {
+  enabled: boolean
+  mode: DataSourceMode
+  network: NetworkMode
+  url?: string
+}
+
 export interface Config {
   // 消息交互设置
   enableQuote: boolean
   enableWaitingHint: boolean
   defaultSource: BillboardSource
-  dataSources: string[]
-  autoPurgeJsdelivr: boolean
+  dataSources: DataSourceConfig[]
+  
+  // 网络代理设置
+  enableGhProxy: boolean
   ghProxyPrefix: string
+  enableCustomProxy: boolean
   customProxyUrl: string
+
+  // 本地爬虫与缓存策略
+  cacheBackend: CacheBackend
+  cacheDuration: number
+  enableWeeklyInvalidation: boolean
+  weeklyInvalidationCron: string
+  
+  // 运维备份与冷启动回溯
+  saveLocalJsonBackup: boolean
+  enableColdBootBackfill: boolean
+
+  // 实验性 B 站凭证设置
+  enableBilibiliCookie: boolean
+  bilibiliCookie: string
+
+  // 输出格式
   outputFormats: OutputFormat[]
+  autoPurgeJsdelivr: boolean
+
   // 纯文本设置
   textDetailedMode: TextDetailedMode
   textShowRenderInfo: boolean
+
   // Takumi WASM 渲染设置
   takumiFontMode: TakumiFontMode
   takumiCustomFontPath: string
@@ -37,6 +71,7 @@ export interface Config {
   takumiDetailedMode: TakumiDetailedMode
   takumiShowRenderInfo: boolean
   takumiScale: number
+
   // Puppeteer 网页出图设置
   puppeteerFontMode: PuppeteerFontMode
   puppeteerCustomFontPath: string
@@ -44,9 +79,11 @@ export interface Config {
   puppeteerDetailedMode: PuppeteerDetailedMode
   puppeteerShowRenderInfo: boolean
   puppeteerScale: number
+
   // QQ 原生 Markdown 设置
   qqMarkdownDetailedMode: QQMarkdownDetailedMode
   qqMarkdownShowRenderInfo: boolean
+
   // 常规偏好与广播
   defaultTop: number
   showCover: boolean
@@ -66,8 +103,8 @@ export const Config: Schema<Config> = Schema.intersect([
       .default(true)
       .description('⏳ 是否显示「正在获取并渲染周榜数据，请稍候...」等待提示（出图完成后将自动撤回）'),
     defaultSource: Schema.union([
-      Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜 (B站本地榜单)'),
-      Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20 (日本N站榜单)'),
+      Schema.const('bilibili' as BillboardSource).description('📺 Bili Board 术力口周榜 (B站本土周榜)'),
+      Schema.const('niconico' as BillboardSource).description('🎵 ニコニコ VOCALOID SONGS TOP20 (日本N站周榜)'),
     ])
       .role('radio')
       .default('bilibili')
@@ -75,29 +112,94 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('💬 消息交互设置'),
 
   Schema.object({
-    dataSources: Schema.array(Schema.string())
+    dataSources: Schema.array(Schema.object({
+      enabled: Schema.boolean().default(true).description('是否启用'),
+      mode: Schema.union([
+        Schema.const('local' as DataSourceMode).description('🕷️ 本地直接爬取 (Bilibili 专栏)'),
+        Schema.const('jsdelivr' as DataSourceMode).description('⚡ jsDelivr CDN 静态归档'),
+        Schema.const('github' as DataSourceMode).description('🐙 GitHub Raw 静态源'),
+        Schema.const('custom' as DataSourceMode).description('🌐 自定义静态源 URL 前缀'),
+      ]).role('radio').default('local').description('数据源模式'),
+      network: Schema.union([
+        Schema.const('proxy' as NetworkMode).description('🚪 走本地代理 (需开启全局代理，否则直连)'),
+        Schema.const('direct' as NetworkMode).description('🌐 强制直连'),
+        Schema.const('ghproxy' as NetworkMode).description('🔗 走 GitHub 公网反代 (仅 GitHub 生效)'),
+        Schema.const('default' as NetworkMode).description('🛡️ 遵循全局默认策略'),
+      ]).role('radio').default('direct').description('网络通道'),
+      url: Schema.string().default('').description('自定义 URL 前缀（仅 custom 模式或自定义仓库时填写）'),
+    }))
       .role('table')
       .default([
-        'https://cdn.jsdelivr.net/gh/VincentZyu233/billboard-data@main/data',
-        'https://raw.githubusercontent.com/VincentZyu233/billboard-data/main/data',
-        'https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data',
-        'https://raw.githubusercontent.com/VincentZyuApps/billboard-data/main/data',
+        { enabled: true, mode: 'local', network: 'proxy', url: '' },
+        { enabled: true, mode: 'local', network: 'direct', url: '' },
+        { enabled: true, mode: 'jsdelivr', network: 'proxy', url: '' },
+        { enabled: true, mode: 'jsdelivr', network: 'direct', url: '' },
+        { enabled: true, mode: 'github', network: 'ghproxy', url: '' },
+        { enabled: true, mode: 'github', network: 'proxy', url: '' },
+        { enabled: true, mode: 'github', network: 'direct', url: '' },
       ])
-      .description('📡 数据源列表（按顺序从前往后依次尝试请求）'),
+      .description('📡 7 级多源与网络通道容灾流水线表格（自上而下依次尝试，ghproxy 仅在 GitHub 生效，若代理开关关闭则自动回退直连）'),
     autoPurgeJsdelivr: Schema.boolean()
       .default(true)
       .experimental()
       .description('⚡ 请求 jsDelivr CDN 前主动调用 Purge 刷新 API（防止读取到旧版边缘缓存）'),
-  }).description('🌐 数据源设置'),
+  }).description('🌐 数据源容灾流水线'),
 
   Schema.object({
+    enableGhProxy: Schema.boolean()
+      .default(true)
+      .description('🔗 是否启用 GitHub 公网反代加速（若关闭，所有 ghproxy 请求将回退到直连）'),
     ghProxyPrefix: Schema.string()
       .default('https://gh-proxy.org/')
-      .description('🔗 公网 GitHub 代理前缀（留空表示不使用；若填写且当前数据源为 GitHub 地址，将优先通过该代理加速访问）'),
+      .description('🔗 公网 GitHub 代理前缀（开启反代且请求 GitHub Raw 时生效）'),
+    enableCustomProxy: Schema.boolean()
+      .default(false)
+      .description('🌐 是否启用本地自定义代理（若关闭，所有代理请求将回退到直连；默认关闭）'),
     customProxyUrl: Schema.string()
       .default('http://127.0.0.1:7890')
-      .description('🌐 自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5；留空表示不使用；将在公网代理失败或非 GitHub 地址时尝试通过该代理访问）'),
-  }).description('🛡️ 网络代理配置【请求时将依次自动尝试：gh-proxy 镜像加速(如果是github的url) -> 自定义本地代理 -> 直连】'),
+      .description('🌐 本地自定义代理服务器地址（支持 HTTP/HTTPS/SOCKS5）'),
+  }).description('🛡️ 网络代理配置【唯一生效判定依据为布尔开关】'),
+
+  Schema.object({
+    cacheBackend: Schema.union([
+      Schema.const('database' as CacheBackend).description('🗄️ Database 数据库持久化（推荐，无服务时自动降级内存）'),
+      Schema.const('memory' as CacheBackend).description('🧠 纯内存 Map（进程重启即清空，绝不读写数据库）'),
+    ])
+      .role('radio')
+      .default('database')
+      .description('💾 缓存存储后端选择'),
+    cacheDuration: Schema.number()
+      .default(600)
+      .min(-1)
+      .description('⏱️ 缓存有效期（单位：分钟；默认 600 分钟即 10 小时；输入 <= 0 表示禁用缓存每次实时抓取）'),
+    enableWeeklyInvalidation: Schema.boolean()
+      .default(true)
+      .description('🕒 是否在每周固定出榜时刻智能让最新一期缓存失效（确保周三第一时间拿到当周新榜）'),
+    weeklyInvalidationCron: Schema.string()
+      .default('0 19 * * 3')
+      .description('⏰ 缓存智能失效 Cron 表达式（默认每周三 19:00：0 19 * * 3）'),
+  }).description('💾 本地爬取与智能缓存'),
+
+  Schema.object({
+    saveLocalJsonBackup: Schema.boolean()
+      .default(true)
+      .description('📁 是否在 Koishi 相对路径 data/billboard-data 镜像保存一份 JSON 结构（运维/本地查阅 bonus）'),
+    enableColdBootBackfill: Schema.boolean()
+      .default(false)
+      .description('❄️ 首次冷启动是否自动从 GitHub 全量拉取历史期数并存入数据库与本地 JSON 镜像（按固定加速链路同步）'),
+  }).description('📦 运维归档与冷启动回溯'),
+
+  Schema.object({
+    enableBilibiliCookie: Schema.boolean()
+      .default(false)
+      .experimental()
+      .description('🍪 是否在爬取 B 站专栏时携带自定义 Cookie（唯一生效来源为本开关）'),
+    bilibiliCookie: Schema.string()
+      .default('')
+      .role('secret')
+      .experimental()
+      .description('🍪 自定义 Bilibili Cookie（如 SESSDATA 等，可降低高频访客风控风险）'),
+  }).description('🧪 实验性 B 站凭证设置'),
 
   Schema.object({
     outputFormats: Schema.array(
@@ -110,7 +212,7 @@ export const Config: Schema<Config> = Schema.intersect([
     )
       .role('checkbox')
       .default(['text', 'takumi', 'puppeteer', 'qq_markdown'])
-      .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）<br><i>默认全部勾选，可以按照自己的需要选择需要的，取消勾选不需要的格式捏~</i>'),
+      .description('📤 周榜消息返回格式（支持多选，默认全部勾选；QQ Markdown 仅在 qq 平台生效）'),
   }).description('📤 消息输出格式'),
 
   Schema.object({
@@ -157,7 +259,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .max(3)
       .step(0.1)
       .default(1.5)
-      .description('🔍 Takumi WASM 渲染缩放倍率 / 设备像素比 (devicePixelRatio)。默认 1.5 倍高清输出，数值越高越清晰细腻，但图片体积与渲染开销会略微增加。'),
+      .description('🔍 Takumi WASM 渲染缩放倍率 / 设备像素比 (devicePixelRatio)。默认 1.5 倍高清输出。'),
   }).description('⚡ Takumi WASM 渲染设置'),
 
   Schema.object({
@@ -192,7 +294,7 @@ export const Config: Schema<Config> = Schema.intersect([
       .max(3)
       .step(0.1)
       .default(1.0)
-      .description('🔍 Puppeteer 网页出图缩放倍率 / 设备像素比 (deviceScaleFactor)。默认保持 1.0 原生倍率不变。'),
+      .description('🔍 Puppeteer 网页出图缩放倍率 / 设备像素比 (deviceScaleFactor)。默认保持 1.0。'),
   }).description('🎨 Puppeteer 网页出图设置'),
 
   Schema.object({
@@ -234,7 +336,8 @@ export const Config: Schema<Config> = Schema.intersect([
       ]))
         .role('checkbox')
         .default(['bilibili', 'niconico'])
-        .description('📡 广播推送的数据源范围（支持多选，默认两者均推送）'),
+        .description('📡 广播推送的数据源范围'),
+      cron: Schema.string().default('').description('⏰ 专属 Cron 定时表达式（留空则遵循 checkInterval 轮询）'),
       enabled: Schema.boolean().default(true).description('✅ 是否启用'),
     }))
       .role('table')
@@ -244,13 +347,14 @@ export const Config: Schema<Config> = Schema.intersect([
         selfId: '',
         channelId: '958366323',
         sources: ['bilibili', 'niconico'],
+        cron: '',
         enabled: true,
       }])
-      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号、推送源范围及是否启用等；selfId 留空将向该平台所有满足条件的 Bot 发送）'),
+      .description('🎯 广播推送目标表格（包含平台、Bot账号、群号、推送源范围、Cron 定时及是否启用等）'),
     checkInterval: Schema.number()
       .default(15)
       .min(1)
       .max(120)
-      .description('⏱️ 新榜自动检测周期（分钟）'),
+      .description('⏱️ 新榜自动检测周期（分钟，针对未单独指定 Cron 的目标生效）'),
   }).description('📢 订阅推送'),
 ])
