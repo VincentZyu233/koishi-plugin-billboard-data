@@ -17,9 +17,11 @@
 <p>💡 在群里直接艾特我，回复的更快哦~ ✨</p>
 
 用于查询 VOCALOID / 虚拟歌手周榜（术力口周榜）的 Koishi 插件。
-同时支持：
-1. **Bili Board 术力口周榜**（B站本土术力口周榜，数据来源于 @Bili-Board_Atel）
-2. **ニコニコ VOCALOID SONGS TOP20**（日本 Niconico 与 Billboard JAPAN 联合官方周榜，数据同步于 @Elvansphere）
+
+> ### 💡 双源数据体系与致谢
+> - **Bilibili 本土周榜**：来源于 B 站 [@Bili-Board_Atel（点击直达B站专栏）](https://space.bilibili.com/3493269493907727/article)（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：`Bili_Board术力口周榜第122期2026年10月7日第40周`）。
+> - **Niconico 日本周榜**：来源于 B 站 [@Elvansphere（点击直达B站专栏）](https://space.bilibili.com/5937105/article)（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：`【2026/10/07】ニコニコ VOCALOID SONGS TOP20`，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。
+> - 所有数据通过 GitHub 自动化归档仓库 [VincentZyuApps/billboard-data](https://github.com/VincentZyuApps/billboard-data) 每周定时归档同步。
 
 支持 **本地爬取 B 站专栏** + **GitHub/jsDelivr CDN 静态源** 双模混合容灾矩阵，具备智能缓存、出榜时刻智能失效及全量历史回溯能力！
 

@@ -78,8 +78,8 @@ export const usage = `
 
   <blockquote style="margin: 14px 0; padding: 10px 14px; border-left: 5px solid #00AEEC; border-radius: 6px; background: rgba(0, 174, 236, 0.08); line-height: 1.6;">
     <b style="color: #00AEEC;">💡 双源数据体系与致谢：</b><br>
-    • <b>Bilibili 本土周榜：</b>来源于 B 站 <b>@Bili-Board_Atel</b>（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：<code>Bili_Board术力口周榜第122期2026年10月7日第40周</code>）。<br>
-    • <b>Niconico 日本周榜：</b>来源于 B 站 <b>@Elvansphere</b>（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：<code>【2026/10/07】ニコニコ VOCALOID SONGS TOP20</code>，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。<br>
+    • <b>Bilibili 本土周榜：</b>来源于 B 站 <a href="https://space.bilibili.com/3493269493907727/article" target="_blank" style="color: #00AEEC; font-weight: bold; text-decoration: underline;">@Bili-Board_Atel（点击直达B站专栏）</a>（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：<code>Bili_Board术力口周榜第122期2026年10月7日第40周</code>）。<br>
+    • <b>Niconico 日本周榜：</b>来源于 B 站 <a href="https://space.bilibili.com/5937105/article" target="_blank" style="color: #FB7299; font-weight: bold; text-decoration: underline;">@Elvansphere（点击直达B站专栏）</a>（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：<code>【2026/10/07】ニコニコ VOCALOID SONGS TOP20</code>，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。<br>
     所有数据通过 GitHub 仓库 
     <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">VincentZyuApps/billboard-data</a> 定时自动化归档。
   </blockquote>
@@ -99,11 +99,11 @@ export const usage = `
   <details style="${detailsStyle}">
     <summary style="${summaryStyle}"><b style="color: #FB7299;">🕷️ 本地爬虫、7 层容灾矩阵与智能缓存</b></summary>
     <div style="${detailsBodyStyle}">
-      <p style="margin: 4px 0;"><b>🕷️ 本地原生爬取：</b>内置轻量级纯 TypeScript 爬虫，可直接解析 @Bili-Board_Atel 与 @Elvansphere 的 B站动态专栏，无需等待 GitHub Action 定时归档即可秒查最新榜单！</p>
+      <p style="margin: 4px 0;"><b>🕷️ 本地原生爬取：</b>内置轻量级纯 TypeScript 爬虫，可直接解析 <a href="https://space.bilibili.com/3493269493907727/article" target="_blank" style="color: #00AEEC; text-decoration: underline;">@Bili-Board_Atel</a> 与 <a href="https://space.bilibili.com/5937105/article" target="_blank" style="color: #FB7299; text-decoration: underline;">@Elvansphere</a> 的 B站动态专栏，无需等待 GitHub Action 定时归档即可秒查最新榜单！</p>
       <p style="margin: 4px 0;"><b>🛡️ 7 层容灾流水线：</b>预设 7 项多级通道（本地爬虫代理 -> 本地爬虫直连 -> jsDelivr代理 -> jsDelivr直连 -> GitHub反代 -> GitHub代理 -> GitHub直连）。当任一环节受阻时自上而下自动无缝降级。</p>
       <p style="margin: 4px 0;"><b>💾 Database / 内存智能缓存：</b>支持通过 Koishi <code>database</code> 服务或纯内存 Map 持久化周榜数据（默认缓存 10 小时）。</p>
       <p style="margin: 4px 0;"><b>🕒 周三 19:00 智能失效：</b>当跨越每周三 19:00（出榜时间节点）时，会自动令最新一期缓存失效，确保第一时间抓取当周新鲜榜单！</p>
-      <p style="margin: 4px 0;"><b>❄️ 冷启动回溯与本地镜像：</b>开启 <code>enableColdBootBackfill</code> 时，首次启动可自动按稳定链路将 GitHub 历史全量数据同步入库；开启 <code>saveLocalJsonBackup</code> 会在 <code>data/billboard-data/</code> 额外保存一份本地 JSON 作为运维查阅 bonus。</p>
+      <p style="margin: 4px 0;"><b>❄️ 冷启动回溯与本地镜像：</b>开启 <code>enableBackfill</code> 时，首次启动可自动按稳定链路将 GitHub 历史全量数据同步入库；开启 <code>enableLocalBackup</code> 会在 <code>data/billboard-data/</code> 额外保存一份本地 JSON 作为运维查阅 bonus。</p>
     </div>
   </details>
 
