@@ -80,7 +80,7 @@ export const usage = `
     <b style="color: #00AEEC;">💡 双源数据体系与致谢：</b><br>
     • <b>Bilibili 本土周榜：</b>来源于 B 站 <a href="https://space.bilibili.com/3493269493907727/article" target="_blank" style="color: #00AEEC; font-weight: bold; text-decoration: underline;">@Bili-Board_Atel（点击直达B站专栏）</a>（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：<code>Bili_Board术力口周榜第122期2026年10月7日第40周</code>）。<br>
     • <b>Niconico 日本周榜：</b>来源于 B 站 <a href="https://space.bilibili.com/5937105/article" target="_blank" style="color: #FB7299; font-weight: bold; text-decoration: underline;">@Elvansphere（点击直达B站专栏）</a>（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：<code>【2026/10/07】ニコニコ VOCALOID SONGS TOP20</code>，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。<br>
-    支持 <a href="src/crawler" style="color: #00AEEC; font-weight: bold; text-decoration: underline;">插件本地原生爬取</a> 或 <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">GitHub 官方归档仓库</a> / <a href="https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data" target="_blank" style="color: #00AEEC; font-weight: bold;">jsDelivr CDN</a> 静态数据源，每周定时归档同步。
+    支持 <a href="src/crawler" style="color: #00AEEC; font-weight: bold; text-decoration: underline;">插件本地原生爬取</a> 或 <a href="https://github.com/VincentZyuApps/billboard-data" target="_blank" style="color: #00AEEC; font-weight: bold;">GitHub 官方归档仓库</a> / <a href="https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data/niconico/index.json" target="_blank" style="color: #00AEEC; font-weight: bold;">jsDelivr CDN</a> 静态数据源，每周定时归档同步。
   </blockquote>
 
   <!-- 折叠区域 1 -->

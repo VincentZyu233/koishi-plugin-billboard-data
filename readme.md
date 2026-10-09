@@ -21,7 +21,7 @@
 > ### 💡 双源数据体系与致谢
 > - **Bilibili 本土周榜**：来源于 B 站 [@Bili-Board_Atel（点击直达B站专栏）](https://space.bilibili.com/3493269493907727/article)（Bilibili Vocaloid Songs 周榜 TOP20 专栏，示例：`Bili_Board术力口周榜第122期2026年10月7日第40周`）。
 > - **Niconico 日本周榜**：来源于 B 站 [@Elvansphere（点击直达B站专栏）](https://space.bilibili.com/5937105/article)（Niconico Vocaloid Songs 周榜 TOP20 专栏，示例：`【2026/10/07】ニコニコ VOCALOID SONGS TOP20`，由 Billboard JAPAN 与 ニコニコ 官方合作出品）。
-> - 支持 [插件本地原生爬取](src/crawler) 或 [GitHub 官方归档仓库](https://github.com/VincentZyuApps/billboard-data) / [jsDelivr CDN](https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data) 静态数据源，每周定时归档同步。
+> - 支持 [插件本地原生爬取](src/crawler) 或 [GitHub 官方归档仓库](https://github.com/VincentZyuApps/billboard-data) / [jsDelivr CDN](https://cdn.jsdelivr.net/gh/VincentZyuApps/billboard-data@main/data/niconico/index.json) 静态数据源，每周定时归档同步。
 
 支持 **本地爬取 B 站专栏** + **GitHub/jsDelivr CDN 静态源** 双模混合容灾矩阵，具备智能缓存、出榜时刻智能失效及全量历史回溯能力！
 
